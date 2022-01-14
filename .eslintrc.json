@@ -1,0 +1,59 @@
+{
+    "env": {
+        "es2021": true,
+        "browser": true,
+        "node": true,
+        "jest": true
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true,
+            "impliedStrict": true
+        },
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react-hooks/recommended",
+        "plugin:@typescript-eslint/recommended",
+        "prettier",
+        "plugin:jest-dom/recommended"
+    ],
+    "plugins": [
+        "react",
+        "react-hooks",
+        "@typescript-eslint",
+        "jest-dom",
+        "testing-library"
+    ],
+    "overrides": [
+        {
+            "files": [
+                "**/__tests__/**/*.[jt]s?(x)",
+                "**/?(*.)+(spec|test).[jt]s?(x)"
+            ],
+            "extends": ["plugin:testing-library/react"]
+        }
+    ],
+    "rules": {
+        "react/jsx-uses-react": "off",
+        "react/react-in-jsx-scope": "off",
+        "no-console": ["warn", { "allow": ["warn", "error", "info"] }],
+        "no-await-in-loop": "error",
+        "no-unsafe-optional-chaining": "error",
+        "no-unreachable-loop": "error",
+        "no-template-curly-in-string": "error",
+        "no-promise-executor-return": "error",
+        "no-loss-of-precision": "error",
+        "no-eq-null": "error",
+        "@typescript-eslint/no-unused-vars": ["warn"]        
+    }
+}

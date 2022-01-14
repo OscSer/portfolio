@@ -1,0 +1,11 @@
+@import "./css/constants.scss";
+@import "./css/utilities.scss";
+
+body {
+    overflow: hidden;
+    margin: 0;
+    // padding: $header-height 0 0 $sidebar-width;
+    font-family: "Roboto", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
