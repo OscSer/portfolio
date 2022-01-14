@@ -16,7 +16,9 @@
         "skipLibCheck": true,
         "paths": {
             "@components": ["components/index"],
-            "@domain": ["domain/index"]
+            "@domain": ["domain/index"],
+            "@services": ["services/index"],
+            "@hooks": ["hooks/index"],
         }
     },
     "include": ["src/**/*.ts", "src/**/*.tsx"],

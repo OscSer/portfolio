@@ -4,6 +4,8 @@ module.exports = {
         "\\.(css|scss)$": "identity-obj-proxy",
         "@components": "<rootDir>/src/components/index",
         "@domain": "<rootDir>/src/domain/index",
+        "@services": "<rootDir>/src/services/index",
+        "@hooks": "<rootDir>/src/hooks/index",
     },
     collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/**/**/index.ts"],
     coverageThreshold: {
