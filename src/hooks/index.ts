@@ -1,2 +1,4 @@
 import { useUser } from "./useUser"
-export { useUser }
+import { usePortfolio } from "./usePortfolio"
+
+export { useUser, usePortfolio }

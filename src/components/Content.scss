@@ -1,0 +1,16 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    padding-top: 30px;
+
+    &__actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+    &__price {
+        font-size: 18px;
+    }
+}

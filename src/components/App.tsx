@@ -1,8 +1,11 @@
 import "./App.scss"
 import { FirebaseService } from "@services"
-import { signInWithRedirect, onAuthStateChanged, signOut } from "firebase/auth"
+import { signInWithRedirect, onAuthStateChanged } from "firebase/auth"
 import { useEffectOnce } from "react-use"
 import { useUser } from "@hooks"
+import { Header } from "./Header"
+import { Content } from "./Content"
+import { Spinner } from "react-bootstrap"
 
 function App(): JSX.Element {
     const [user, setUser] = useUser()
@@ -18,19 +21,13 @@ function App(): JSX.Element {
         })
     })
 
-    const handleSignOut = () => {
-        setUser(undefined)
-        signOut(auth)
-    }
-
     return user ? (
-        <div>
-            <h1>{user.displayName}</h1>
-            <h1>{user.email}</h1>
-            <button onClick={handleSignOut}>SignOut</button>
+        <div className="app">
+            <Header />
+            <Content />
         </div>
     ) : (
-        <h1>Loading...</h1>
+        <Spinner className="spinner" variant="primary" animation="border" />
     )
 }
 
