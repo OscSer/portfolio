@@ -3,6 +3,6 @@ export type PortfolioData = {
 }
 
 export type Portfolio = {
-    ref: string
+    ref: string | null
     data: PortfolioData
 }

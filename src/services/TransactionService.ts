@@ -1,28 +1,36 @@
 import { Portfolio, Transaction, TransactionData } from "@domain"
-import { ref, child, get, set } from "firebase/database"
+import {
+    ref,
+    get,
+    set,
+    query,
+    orderByChild,
+    push,
+    update,
+} from "firebase/database"
 import FirebaseService from "./FirebaseService"
+
+const { db } = FirebaseService
 
 const getAllTransactions = (
     uid: string,
     portfolio: Portfolio
 ): Promise<Transaction[]> => {
-    const { database } = FirebaseService
-    const dbRef = ref(database)
     return new Promise((resolve) => {
-        const portfolios: Transaction[] = []
-        get(
-            child(
-                dbRef,
-                `users/${uid}/portfolios/${portfolio.ref}/transactions`
-            )
-        ).then((snapshot) => {
-            if (snapshot.val()) {
-                for (const [key, value] of Object.entries(snapshot.val())) {
+        const _query = query(
+            ref(db, `users/${uid}/portfolios/${portfolio.ref}/transactions`),
+            orderByChild("date")
+        )
+
+        get(_query).then((snapshot) => {
+            const portfolios: Transaction[] = []
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
                     portfolios.push({
-                        ref: key,
-                        data: value as TransactionData,
+                        ref: child.key,
+                        data: child.val() as TransactionData,
                     })
-                }
+                })
             }
             resolve(portfolios)
         })
@@ -34,14 +42,16 @@ const saveTransaction = (
     portfolio: Portfolio,
     transaction: Transaction
 ): void => {
-    const { database } = FirebaseService
-    set(
-        ref(
-            database,
-            `users/${uid}/portfolios/${portfolio.ref}/transactions/${transaction.ref}`
-        ),
-        transaction.data
-    )
+    const transactionsPath = `users/${uid}/portfolios/${portfolio.ref}/transactions`
+    if (transaction.ref) {
+        const updates: Record<string, unknown> = {}
+        updates[`${transactionsPath}/${transaction.ref}`] = transaction.data
+        update(ref(db), updates)
+    } else {
+        const transactionsRef = ref(db, transactionsPath)
+        const newTransactionRef = push(transactionsRef)
+        set(newTransactionRef, transaction.data)
+    }
 }
 
 export default { getAllTransactions, saveTransaction }

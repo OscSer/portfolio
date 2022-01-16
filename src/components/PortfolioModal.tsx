@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form"
 import { Dispatch, SetStateAction } from "react"
 import { PortfolioService } from "@services"
 import { useUser } from "@hooks"
-import { Portfolio, Utils } from "@domain"
+import { Portfolio } from "@domain"
 
 type Props = {
     show: boolean
@@ -26,7 +26,7 @@ function PortfolioModal({
 
     const handleSave = () => {
         if (name) {
-            const ref = isNew ? Utils.getUniqueId() : portfolio.ref
+            const ref = isNew ? undefined : portfolio.ref
             const _portfolio = { ref, data: { name } } as Portfolio
             savePortfolio(user.uid, _portfolio)
             handleHide()
@@ -50,7 +50,7 @@ function PortfolioModal({
                     type="text"
                     id="portfolioName"
                     onChange={(event) => (name = event.target.value)}
-                    placeholder={name}
+                    defaultValue={name}
                 />
             </Modal.Body>
 

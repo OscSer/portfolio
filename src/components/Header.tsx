@@ -29,7 +29,9 @@ function Header(): JSX.Element {
                 const _options: JSX.Element[] = []
                 _portfolios.forEach((portfolio) => {
                     const option = (
-                        <option key={portfolio.ref} value={portfolio.ref}>
+                        <option
+                            key={portfolio.ref}
+                            value={portfolio.ref ? portfolio.ref : ""}>
                             {portfolio.data.name}
                         </option>
                     )
@@ -71,7 +73,9 @@ function Header(): JSX.Element {
     return (
         <div className="header">
             <div className="header__portfolio">
-                <FormSelect onChange={handleChange} value={portfolio?.ref}>
+                <FormSelect
+                    onChange={handleChange}
+                    defaultValue={portfolio?.ref ? portfolio.ref : ""}>
                     {options}
                 </FormSelect>
                 <Button

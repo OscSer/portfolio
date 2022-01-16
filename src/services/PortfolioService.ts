@@ -1,20 +1,21 @@
-import { Portfolio, PortfolioData, Utils } from "@domain"
-import { ref, child, get, set } from "firebase/database"
+import { Portfolio, PortfolioData } from "@domain"
+import { ref, child, get, update, push, set } from "firebase/database"
 import FirebaseService from "./FirebaseService"
 
+const { db } = FirebaseService
+
 const getAllPortfolios = (uid: string): Promise<Portfolio[]> => {
-    const { database } = FirebaseService
-    const dbRef = ref(database)
+    const dbRef = ref(db)
     return new Promise((resolve) => {
-        const portfolios: Portfolio[] = []
         get(child(dbRef, `users/${uid}/portfolios/`)).then((snapshot) => {
-            if (snapshot.val()) {
-                for (const [key, value] of Object.entries(snapshot.val())) {
+            const portfolios: Portfolio[] = []
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
                     portfolios.push({
-                        ref: key,
-                        data: value as PortfolioData,
+                        ref: child.key,
+                        data: child.val() as PortfolioData,
                     })
-                }
+                })
             }
             resolve(portfolios)
         })
@@ -22,11 +23,16 @@ const getAllPortfolios = (uid: string): Promise<Portfolio[]> => {
 }
 
 const savePortfolio = (uid: string, portfolio: Portfolio): void => {
-    const { database } = FirebaseService
-    set(
-        ref(database, `users/${uid}/portfolios/${portfolio.ref}`),
-        portfolio.data
-    )
+    const portfoliosPath = `users/${uid}/portfolios`
+    if (portfolio.ref) {
+        const updates: Record<string, unknown> = {}
+        updates[`${portfoliosPath}/${portfolio.ref}/name`] = portfolio.data.name
+        update(ref(db), updates)
+    } else {
+        const transactionsRef = ref(db, portfoliosPath)
+        const newTransactionRef = push(transactionsRef)
+        set(newTransactionRef, portfolio.data)
+    }
 }
 
 export default { getAllPortfolios, savePortfolio }

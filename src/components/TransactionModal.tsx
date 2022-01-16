@@ -5,7 +5,7 @@ import Form from "react-bootstrap/Form"
 import { Dispatch, SetStateAction, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { Transaction, TransactionData, Utils } from "@domain"
+import { Transaction, TransactionData } from "@domain"
 import { FormSelect } from "react-bootstrap"
 import DatePicker from "react-datepicker"
 
@@ -23,7 +23,9 @@ function TransactionModal({
     onHide,
 }: Props): JSX.Element {
     const [date, setDate] = useState(
-        transaction ? new Date(transaction.data.date) : new Date()
+        transaction
+            ? new Date(transaction.data.date).getTime()
+            : new Date().getTime()
     )
     const [user] = useUser()
     const [portfolio] = usePortfolio()
@@ -34,9 +36,9 @@ function TransactionModal({
         : transaction.data
 
     const handleSave = () => {
-        if (Object.keys(data).length === 4 && date && portfolio) {
-            data.date = date.toISOString()
-            const ref = isNew ? Utils.getUniqueId() : transaction.ref
+        if (Object.keys(data).length === 4 && portfolio) {
+            data.date = date
+            const ref = isNew ? undefined : transaction.ref
             const _transaction = { ref, data } as Transaction
             saveTransaction(user.uid, portfolio, _transaction)
             handleHide()
@@ -58,16 +60,35 @@ function TransactionModal({
                 <Form.Label>Date</Form.Label>
                 <DatePicker
                     className="form-control"
-                    selected={date}
-                    onChange={(date: Date) => setDate(date)}
+                    selected={new Date(date)}
+                    onChange={(date: Date) => setDate(date.getTime())}
                 />
+
+                <Form.Label htmlFor="type">Type</Form.Label>
+                <FormSelect
+                    onChange={(event) =>
+                        (data.type = event.target.value as "BUY" | "SELL")
+                    }
+                    id="type"
+                    defaultValue={data.type}>
+                    <option key="buy" value="BUY">
+                        BUY
+                    </option>
+                    <option key="sell" value="SELL">
+                        SELL
+                    </option>
+                </FormSelect>
+
                 <Form.Label htmlFor="symbol">Symbol</Form.Label>
                 <Form.Control
                     type="text"
                     id="symbol"
-                    onChange={(event) => (data.symbol = event.target.value)}
+                    onChange={(event) =>
+                        (data.symbol = event.target.value.toUpperCase())
+                    }
                     placeholder={data.symbol}
                 />
+
                 <Form.Label htmlFor="units">Units</Form.Label>
                 <Form.Control
                     type="number"
@@ -77,6 +98,7 @@ function TransactionModal({
                     }
                     placeholder={data.units ? data.units.toString() : ""}
                 />
+
                 <Form.Label htmlFor="price">Price</Form.Label>
                 <Form.Control
                     type="number"
@@ -86,20 +108,6 @@ function TransactionModal({
                     }
                     placeholder={data.price ? data.price.toString() : ""}
                 />
-                <Form.Label htmlFor="type">Type</Form.Label>
-                <FormSelect
-                    onChange={(event) =>
-                        (data.type = event.target.value as "BUY" | "SELL")
-                    }
-                    id="type"
-                    value={data.type}>
-                    <option key="buy" value="BUY">
-                        BUY
-                    </option>
-                    <option key="sell" value="SELL">
-                        SELL
-                    </option>
-                </FormSelect>
             </Modal.Body>
 
             <Modal.Footer>

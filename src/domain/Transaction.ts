@@ -1,5 +1,5 @@
 export type TransactionData = {
-    date: string
+    date: number
     symbol: string
     units: number
     price: number
@@ -7,6 +7,6 @@ export type TransactionData = {
 }
 
 export type Transaction = {
-    ref: string
+    ref: string | null
     data: TransactionData
 }

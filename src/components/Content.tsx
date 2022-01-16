@@ -1,13 +1,21 @@
 import "./Content.scss"
 import Button from "react-bootstrap/Button"
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { TransactionModal } from "./TransactionModal"
 import { Table } from "./Table"
 import { Utils } from "@domain"
+import { useBalance } from "@hooks"
+import { ProfitLoss } from "./ProfitLoss"
 
 function Content(): JSX.Element {
     const [showModal, setShowModal] = useState(false)
     const tableRef = useRef(Utils.getUniqueId())
+    const [balance] = useBalance()
+    const { priceToString } = Utils
+
+    const handleHide = useCallback(() => {
+        tableRef.current = Utils.getUniqueId()
+    }, [])
 
     return (
         <div className="content">
@@ -15,7 +23,9 @@ function Content(): JSX.Element {
                 <div>
                     <h1>Balance</h1>
                     <div className="content__price">
-                        ${(1000.5).toLocaleString()}
+                        <ProfitLoss value={balance}>
+                            {priceToString(balance)}
+                        </ProfitLoss>
                     </div>
                 </div>
                 <div>
@@ -30,7 +40,7 @@ function Content(): JSX.Element {
             <TransactionModal
                 show={showModal}
                 setShow={setShowModal}
-                onHide={() => (tableRef.current = Utils.getUniqueId())}
+                onHide={handleHide}
             />
         </div>
     )
