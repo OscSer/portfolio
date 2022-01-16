@@ -14,8 +14,8 @@ exports.base = {
     entryPoints: ["src/index.tsx"],
     outdir: "public",
     inject: ["scripts/react-shim.js"],
-    plugins: [sassPlugin()], 
+    plugins: [sassPlugin()],
     loader: {
-        '.png':'file'
-    } 
+        ".png": "file",
+    },
 }

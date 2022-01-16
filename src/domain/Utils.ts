@@ -1,4 +1,4 @@
-const getUniqueId = (length = 10): string => {
+const getUniqueId = (length = 20): string => {
     const chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     let result = ""

@@ -12,10 +12,10 @@ import { useEffectOnce } from "react-use"
 import EditIcon from "@material-ui/icons/Edit"
 
 function Header(): JSX.Element {
+    const [user] = useUser()
     const [portfolio, setPortfolio] = usePortfolio()
     const [showModal, setShowModal] = useState(false)
     const [options, setOptions] = useState<JSX.Element[]>([])
-    const [user] = useUser()
     const { auth } = FirebaseService
     const { getAllPortfolios } = PortfolioService
     const portfolios = useRef<Portfolio[]>([])
@@ -71,10 +71,7 @@ function Header(): JSX.Element {
     return (
         <div className="header">
             <div className="header__portfolio">
-                <FormSelect
-                    onChange={handleChange}
-                    onSelect={handleChange}
-                    value={portfolio?.ref}>
+                <FormSelect onChange={handleChange} value={portfolio?.ref}>
                     {options}
                 </FormSelect>
                 <Button
@@ -84,7 +81,7 @@ function Header(): JSX.Element {
                 </Button>
             </div>
             <div className="header__user">
-                <span>{user.email}</span>
+                <span>{user.displayName}</span>
                 <Button variant="outline-secondary" onClick={handleSignOut}>
                     SignOut
                 </Button>
