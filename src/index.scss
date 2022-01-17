@@ -1,9 +1,19 @@
-@import "./css/constants.scss";
-@import "./css/utilities.scss";
-
 body {
     margin: 0;
     font-family: "Roboto", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    cursor: pointer;
+}
+.icon-add {
+    &.MuiSvgIcon-root {
+        font-size: 29px;
+    }
 }

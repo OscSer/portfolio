@@ -6,6 +6,7 @@ import { useUser } from "@hooks"
 import { Header } from "./Header"
 import { Content } from "./Content"
 import { Spinner } from "react-bootstrap"
+import { Utils } from "@domain"
 
 function App(): JSX.Element {
     const [user, setUser] = useUser()
@@ -15,6 +16,8 @@ function App(): JSX.Element {
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 setUser(user)
+                /* wait for the SymbolMap instance */
+                Utils.sleep(1000)
             } else {
                 signInWithRedirect(auth, provider)
             }

@@ -10,6 +10,8 @@ import { find } from "lodash"
 import { Portfolio } from "@domain"
 import { useEffectOnce } from "react-use"
 import EditIcon from "@material-ui/icons/Edit"
+import AddIcon from "@material-ui/icons/Add"
+import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 
 function Header(): JSX.Element {
     const [user] = useUser()
@@ -37,12 +39,7 @@ function Header(): JSX.Element {
                     )
                     _options.push(option)
                 })
-                setOptions([
-                    ..._options,
-                    <option key={"create"} value={"create"}>
-                        + Create Portfolio
-                    </option>,
-                ])
+                setOptions(_options)
                 setPortfolio(_portfolios[0])
             }
         })
@@ -57,17 +54,20 @@ function Header(): JSX.Element {
     }
 
     const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        const value = event.target.value
-        if (value === "create") {
-            setPortfolio(undefined)
-            setShowModal(true)
-        } else {
-            setPortfolio(find(portfolios.current, { ref: value }))
-        }
+        setPortfolio(find(portfolios.current, { ref: event.target.value }))
     }
 
     const handleHide = () => {
         getPortfolios()
+    }
+
+    const handleEdit = () => {
+        setShowModal(true)
+    }
+
+    const handleAdd = () => {
+        setPortfolio(undefined)
+        setShowModal(true)
     }
 
     return (
@@ -78,17 +78,12 @@ function Header(): JSX.Element {
                     defaultValue={portfolio?.ref ? portfolio.ref : ""}>
                     {options}
                 </FormSelect>
-                <Button
-                    variant="outline-primary"
-                    onClick={() => setShowModal(true)}>
-                    <EditIcon />
-                </Button>
+                <EditIcon className="icon" onClick={handleEdit} />
+                <AddIcon className="icon icon-add" onClick={handleAdd} />
             </div>
-            <div className="header__user">
-                <span>{user.displayName}</span>
-                <Button variant="outline-secondary" onClick={handleSignOut}>
-                    SignOut
-                </Button>
+            <div className="header__user icon" onClick={handleSignOut}>
+                <div className="header__username">{user.displayName}</div>
+                <ExitToAppIcon />
             </div>
             <PortfolioModal
                 show={showModal}

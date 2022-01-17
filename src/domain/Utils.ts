@@ -1,6 +1,13 @@
 import { TableData } from "./TableData"
 import { Transaction } from "./Transaction"
 
+const sleep = (ms: number): void => {
+    const now = new Date().getTime()
+    while (new Date().getTime() < now + ms) {
+        /* Do nothing */
+    }
+}
+
 const getUniqueId = (length = 20): string => {
     const chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -66,6 +73,7 @@ const buildTableDataMap = (
 }
 
 export default {
+    sleep,
     getUniqueId,
     priceToString,
     percentToString,

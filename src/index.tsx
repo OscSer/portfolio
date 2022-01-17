@@ -5,7 +5,7 @@ import { render } from "react-dom"
 import { App } from "@components"
 import { SymbolMap } from "domain/SymbolMap"
 
-/* singleton */
+/* init singleton */
 SymbolMap.getInstance()
 
 render(
