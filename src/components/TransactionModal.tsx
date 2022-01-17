@@ -2,7 +2,7 @@ import "./TransactionModal.scss"
 import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
-import { Dispatch, SetStateAction, useRef } from "react"
+import { Dispatch, SetStateAction } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
 import { Transaction, TransactionData, TransactionType } from "@domain"
@@ -26,23 +26,18 @@ function TransactionModal({
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const isNew = !transaction
-    const initialState = {
+    const initialData = {
         date: new Date().getTime(),
         type: TransactionType.Buy,
     } as TransactionData
-    const dataRef = useRef<TransactionData>(initialState)
-    if (isNew) {
-        dataRef.current = initialState
-    } else {
-        dataRef.current = transaction.data
-    }
+    const data: TransactionData = isNew ? initialData : transaction.data
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleSave = (event: any) => {
         event?.preventDefault()
-        if (Object.keys(dataRef.current).length >= 4 && portfolio) {
+        if (Object.keys(data).length >= 4 && portfolio) {
             const ref = isNew ? undefined : transaction.ref
-            const _transaction = { ref, data: dataRef.current } as Transaction
+            const _transaction = { ref, data: data } as Transaction
             saveTransaction(user.uid, portfolio, _transaction)
             handleHide()
         }
@@ -62,19 +57,16 @@ function TransactionModal({
             <Modal.Body className="modal-body">
                 <Form onSubmit={handleSave}>
                     <DatePicker
-                        selected={new Date(dataRef.current.date)}
-                        onChange={(date) =>
-                            (dataRef.current.date = date.getTime())
-                        }
+                        selected={new Date(data.date)}
+                        onChange={(date) => (data.date = date.getTime())}
                     />
 
                     <Form.Label>Type</Form.Label>
                     <FormSelect
                         onChange={(event) =>
-                            (dataRef.current.type = event.target
-                                .value as TransactionType)
+                            (data.type = event.target.value as TransactionType)
                         }
-                        defaultValue={dataRef.current.type}>
+                        defaultValue={data.type}>
                         {Object.keys(TransactionType).map((key: string) => (
                             <option
                                 key={key}
@@ -92,28 +84,27 @@ function TransactionModal({
                     <Form.Control
                         type="text"
                         onChange={(event) =>
-                            (dataRef.current.symbol =
-                                event.target.value.toUpperCase())
+                            (data.symbol = event.target.value.toUpperCase())
                         }
-                        defaultValue={dataRef.current.symbol}
+                        defaultValue={data.symbol}
                     />
 
                     <Form.Label>Units</Form.Label>
                     <Form.Control
                         type="number"
                         onChange={(event) =>
-                            (dataRef.current.units = Number(event.target.value))
+                            (data.units = Number(event.target.value))
                         }
-                        defaultValue={dataRef.current.units}
+                        defaultValue={data.units}
                     />
 
                     <Form.Label>Price</Form.Label>
                     <Form.Control
                         type="number"
                         onChange={(event) =>
-                            (dataRef.current.price = Number(event.target.value))
+                            (data.price = Number(event.target.value))
                         }
-                        defaultValue={dataRef.current.price}
+                        defaultValue={data.price}
                     />
                 </Form>
             </Modal.Body>

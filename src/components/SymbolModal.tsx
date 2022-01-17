@@ -122,7 +122,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
             <TransactionModal
                 show={showTransactionModal}
                 setShow={setShowTransactionModal}
-                onHide={() => ""}
+                onHide={() => getTransactions()}
                 transaction={transaction}
             />
         </Modal>
