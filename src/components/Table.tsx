@@ -5,12 +5,15 @@ import React, { useCallback, useEffect, useState } from "react"
 import { CoinGeckoService, TransactionService } from "@services"
 import { useBalance, usePortfolio, useUser } from "@hooks"
 import { ProfitLoss } from "./ProfitLoss"
+import { SymbolModal } from "./SymbolModal"
 
 function Table(): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useState<TableData[]>([])
-    const [balance, setBalance] = useBalance()
+    const [, setBalance] = useBalance()
+    const [showModal, setShowModal] = useState(false)
+    const [symbol, setSymbol] = useState("")
     const { getAllTransactions } = TransactionService
     const { getMarketData } = CoinGeckoService
     const { priceToString, percentToString, buildTableDataMap } = Utils
@@ -41,8 +44,17 @@ function Table(): JSX.Element {
                             })
                             _balance += mktValue
                         })
-                        setData(_data)
                         setBalance(_balance)
+                        setData(
+                            _data.map(
+                                (item): TableData => ({
+                                    ...item,
+                                    portfolioPercent: item.mktValue
+                                        ? 100 * (item.mktValue / _balance)
+                                        : 0,
+                                })
+                            )
+                        )
                     }
                 )
             })
@@ -60,25 +72,28 @@ function Table(): JSX.Element {
         getTransactions()
     }, [getTransactions, portfolio])
 
-    useEffect(() => {
-        setData(
-            data.map(
-                (item): TableData => ({
-                    ...item,
-                    portfolioPercent: item.mktValue
-                        ? 100 * (item.mktValue / balance)
-                        : 0,
-                })
-            )
-        )
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [balance])
+    const showSymbolModal = (symbol: string) => {
+        setSymbol(symbol)
+        setShowModal(true)
+    }
+
+    const handleHide = () => {
+        setSymbol("")
+        getTransactions()
+    }
 
     const columns = React.useMemo<Column<TableData>[]>(
         () => [
             {
                 Header: "Symbol",
                 accessor: "symbol",
+                Cell: ({ value }: { value: string }) => (
+                    <div
+                        className="symbol"
+                        onClick={() => showSymbolModal(value)}>
+                        {value}
+                    </div>
+                ),
             },
             {
                 Header: "Profit $",
@@ -146,35 +161,51 @@ function Table(): JSX.Element {
         useTable({ columns, data })
 
     return (
-        <table {...getTableProps()}>
-            <thead>
-                {headerGroups.map((headerGroup, index) => (
-                    <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                        {headerGroup.headers.map((column, index) => (
-                            <th {...column.getHeaderProps()} key={index}>
-                                {column.render("Header")}
-                            </th>
+        <>
+            {data.length ? (
+                <table {...getTableProps()}>
+                    <thead>
+                        {headerGroups.map((headerGroup, index) => (
+                            <tr
+                                {...headerGroup.getHeaderGroupProps()}
+                                key={index}>
+                                {headerGroup.headers.map((column, index) => (
+                                    <th
+                                        {...column.getHeaderProps()}
+                                        key={index}>
+                                        {column.render("Header")}
+                                    </th>
+                                ))}
+                            </tr>
                         ))}
-                    </tr>
-                ))}
-            </thead>
-            <tbody {...getTableBodyProps()}>
-                {rows.map((row, index) => {
-                    prepareRow(row)
-                    return (
-                        <tr {...row.getRowProps()} key={index}>
-                            {row.cells.map((cell, index) => {
-                                return (
-                                    <td {...cell.getCellProps()} key={index}>
-                                        {cell.render("Cell")}
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                    )
-                })}
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody {...getTableBodyProps()}>
+                        {rows.map((row, index) => {
+                            prepareRow(row)
+                            return (
+                                <tr {...row.getRowProps()} key={index}>
+                                    {row.cells.map((cell, index) => {
+                                        return (
+                                            <td
+                                                {...cell.getCellProps()}
+                                                key={index}>
+                                                {cell.render("Cell")}
+                                            </td>
+                                        )
+                                    })}
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            ) : null}
+            <SymbolModal
+                symbol={symbol}
+                show={showModal}
+                setShow={setShowModal}
+                onHide={handleHide}
+            />
+        </>
     )
 }
 

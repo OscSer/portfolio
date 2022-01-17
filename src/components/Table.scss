@@ -18,13 +18,26 @@ table {
         padding: 0.5rem;
         border-bottom: 1px solid $border-color;
         border-right: 1px solid $border-color;
-
         :last-child {
             border-right: 0;
         }
     }
 
+    th {
+        text-align: center;
+    }
+    td {
+        text-align: right;
+    }
+
     tbody > tr:hover {
         background-color: #eceff1;
+    }
+
+    .symbol {
+        text-decoration: underline;
+        color: #42a5f5;
+        cursor: pointer;
+        text-align: center;
     }
 }

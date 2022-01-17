@@ -39,37 +39,50 @@ const percentToString = (percent: number | undefined): string => {
 const buildTableDataMap = (
     transactions: Transaction[]
 ): Record<string, TableData> => {
-    const map: Record<string, TableData> = {}
-    const buys: Transaction[] = []
-    let count = 0
+    const symbolsMap: Record<string, Transaction[]> = {}
     transactions.forEach((transaction) => {
-        if (transaction.data.type === "SELL") {
-            count += transaction.data.units
-        } else {
-            buys.push(transaction)
+        const symbol = transaction.data.symbol
+        if (!symbolsMap[symbol]) {
+            symbolsMap[symbol] = []
         }
+        symbolsMap[symbol].push(transaction)
     })
-    buys.forEach((transaction) => {
-        const data = transaction.data
-        if (!map[data.symbol]) {
-            map[data.symbol] = {
-                symbol: data.symbol,
-                holdings: 0,
-                cost: 0,
-            }
-        }
 
-        if (count === 0 || count < data.units) {
-            const units = data.units - count
-            const cost = units * data.price
-            map[data.symbol].holdings += units
-            map[data.symbol].cost += cost
-            count = 0
-        } else {
-            count -= data.units
-        }
+    const dataMap: Record<string, TableData> = {}
+    Object.keys(symbolsMap).forEach((symbol) => {
+        const transactions = symbolsMap[symbol]
+        const buyTransactions: Transaction[] = []
+        let unitsSoldCounter = 0
+        transactions.forEach((transaction) => {
+            if (transaction.data.type === "SELL") {
+                unitsSoldCounter += transaction.data.units
+            } else if (transaction.data.type === "BUY") {
+                buyTransactions.push(transaction)
+            }
+        })
+        buyTransactions.forEach((transaction) => {
+            const data = transaction.data
+            if (!dataMap[data.symbol]) {
+                dataMap[data.symbol] = {
+                    symbol: data.symbol,
+                    holdings: 0,
+                    cost: 0,
+                }
+            }
+
+            if (unitsSoldCounter === 0 || unitsSoldCounter < data.units) {
+                const units = data.units - unitsSoldCounter
+                const cost = units * data.price
+                dataMap[data.symbol].holdings += units
+                dataMap[data.symbol].cost += cost
+                unitsSoldCounter = 0
+            } else {
+                unitsSoldCounter -= data.units
+            }
+        })
     })
-    return map
+
+    return dataMap
 }
 
 export default {

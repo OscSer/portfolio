@@ -7,6 +7,8 @@ import {
     orderByChild,
     push,
     update,
+    equalTo,
+    remove,
 } from "firebase/database"
 import FirebaseService from "./FirebaseService"
 
@@ -20,6 +22,35 @@ const getAllTransactions = (
         const _query = query(
             ref(db, `users/${uid}/portfolios/${portfolio.ref}/transactions`),
             orderByChild("date")
+        )
+
+        get(_query).then((snapshot) => {
+            const portfolios: Transaction[] = []
+            if (snapshot.exists()) {
+                snapshot.forEach((child) => {
+                    portfolios.push({
+                        ref: child.key,
+                        data: child.val() as TransactionData,
+                    })
+                })
+            }
+            resolve(portfolios)
+        })
+    })
+}
+
+const getTransactionsBySymbol = (
+    uid: string,
+    portfolio: Portfolio,
+    symbol: string
+): Promise<Transaction[]> => {
+    return new Promise((resolve) => {
+        if (!symbol) resolve([])
+
+        const _query = query(
+            ref(db, `users/${uid}/portfolios/${portfolio.ref}/transactions`),
+            orderByChild("symbol"),
+            equalTo(symbol)
         )
 
         get(_query).then((snapshot) => {
@@ -54,4 +85,18 @@ const saveTransaction = (
     }
 }
 
-export default { getAllTransactions, saveTransaction }
+const deleteTransaction = (
+    uid: string,
+    portfolio: Portfolio,
+    transaction: Transaction
+): void => {
+    const transactionPath = `users/${uid}/portfolios/${portfolio.ref}/transactions/${transaction.ref}`
+    remove(ref(db, transactionPath))
+}
+
+export default {
+    getAllTransactions,
+    saveTransaction,
+    getTransactionsBySymbol,
+    deleteTransaction,
+}

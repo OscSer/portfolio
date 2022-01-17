@@ -1,0 +1,19 @@
+.symbol-modal {
+    .group {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        div {
+            width: 80px;
+        }
+    }
+    .actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 10px;
+        .delete {
+            color: #d32f2f;
+        }
+    }
+}

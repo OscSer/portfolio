@@ -22,11 +22,6 @@ function TransactionModal({
     transaction,
     onHide,
 }: Props): JSX.Element {
-    const [date, setDate] = useState(
-        transaction
-            ? new Date(transaction.data.date).getTime()
-            : new Date().getTime()
-    )
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const { saveTransaction } = TransactionService
@@ -34,9 +29,11 @@ function TransactionModal({
     const data: TransactionData = isNew
         ? ({ type: "BUY" } as TransactionData)
         : transaction.data
-
+    const [date, setDate] = useState(
+        isNew ? new Date().getTime() : new Date(data.date).getTime()
+    )
     const handleSave = () => {
-        if (Object.keys(data).length === 4 && portfolio) {
+        if (Object.keys(data).length >= 4 && portfolio) {
             data.date = date
             const ref = isNew ? undefined : transaction.ref
             const _transaction = { ref, data } as Transaction
@@ -86,7 +83,7 @@ function TransactionModal({
                     onChange={(event) =>
                         (data.symbol = event.target.value.toUpperCase())
                     }
-                    placeholder={data.symbol}
+                    defaultValue={data.symbol}
                 />
 
                 <Form.Label htmlFor="units">Units</Form.Label>
@@ -96,7 +93,7 @@ function TransactionModal({
                     onChange={(event) =>
                         (data.units = Number(event.target.value))
                     }
-                    placeholder={data.units ? data.units.toString() : ""}
+                    defaultValue={data.units ? data.units.toString() : ""}
                 />
 
                 <Form.Label htmlFor="price">Price</Form.Label>
@@ -106,7 +103,7 @@ function TransactionModal({
                     onChange={(event) =>
                         (data.price = Number(event.target.value))
                     }
-                    placeholder={data.price ? data.price.toString() : ""}
+                    defaultValue={data.price ? data.price.toString() : ""}
                 />
             </Modal.Body>
 
