@@ -25,7 +25,7 @@ function App(): JSX.Element {
     })
 
     return user ? (
-        <div className="app">
+        <div className="app" data-testid="app">
             <Header />
             <Content />
         </div>
