@@ -1,11 +1,10 @@
-type Coin = {
-    symbol: string
-    id: string
-}
+import { Coin } from "./Coin"
+import { sortBy } from "lodash"
 
 export class SymbolMap {
     private static instance: SymbolMap
-    public map: Record<string, string> = {}
+    public map: Record<string, Coin> = {}
+    public list: Coin[] = []
 
     private constructor() {
         //void
@@ -17,8 +16,9 @@ export class SymbolMap {
             fetch("https://api.coingecko.com/api/v3/coins/list")
                 .then((response) => response.json())
                 .then((data) => {
+                    SymbolMap.instance.list = sortBy(data, ["symbol"])
                     data.forEach((coin: Coin) => {
-                        SymbolMap.instance.map[coin.symbol] = coin.id
+                        SymbolMap.instance.map[coin.id] = coin
                     })
                 })
         }

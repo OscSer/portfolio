@@ -26,9 +26,9 @@ function Table(): JSX.Element {
                     (marketDataMap) => {
                         const _data: TableData[] = []
                         let _balance = 0
-                        Object.keys(tableDataMap).forEach((key) => {
-                            const tableData = tableDataMap[key]
-                            const marketData = marketDataMap[key]
+                        Object.keys(tableDataMap).forEach((id) => {
+                            const tableData = tableDataMap[id]
+                            const marketData = marketDataMap[id]
                             const mktValue =
                                 tableData.holdings * marketData.price
                             const profit = mktValue - tableData.cost
@@ -91,7 +91,7 @@ function Table(): JSX.Element {
                     <div
                         className="symbol"
                         onClick={() => showSymbolModal(value)}>
-                        {value}
+                        {value.toUpperCase()}
                     </div>
                 ),
             },

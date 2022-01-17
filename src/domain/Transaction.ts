@@ -5,6 +5,7 @@ export enum TransactionType {
 
 export type TransactionData = {
     date: number
+    id: string
     symbol: string
     units: number
     price: number

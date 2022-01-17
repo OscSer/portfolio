@@ -5,9 +5,11 @@ import Form from "react-bootstrap/Form"
 import { Dispatch, SetStateAction } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { Transaction, TransactionData, TransactionType } from "@domain"
+import { Coin, Transaction, TransactionData, TransactionType } from "@domain"
 import { FormSelect } from "react-bootstrap"
 import { DatePicker } from "./DatePicker"
+import { Typeahead } from "react-bootstrap-typeahead"
+import { SymbolMap } from "domain/SymbolMap"
 
 type Props = {
     show: boolean
@@ -31,6 +33,8 @@ function TransactionModal({
         type: TransactionType.Buy,
     } as TransactionData
     const data: TransactionData = isNew ? initialData : transaction.data
+    const list = SymbolMap.getInstance().list
+    const map = SymbolMap.getInstance().map
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleSave = (event: any) => {
@@ -81,12 +85,25 @@ function TransactionModal({
                     </FormSelect>
 
                     <Form.Label>Symbol</Form.Label>
-                    <Form.Control
-                        type="text"
-                        onChange={(event) =>
-                            (data.symbol = event.target.value.toUpperCase())
-                        }
-                        defaultValue={data.symbol}
+                    <Typeahead
+                        defaultSelected={data.id ? [map[data.id]] : []}
+                        onChange={(selected) => {
+                            const coin = selected[0] as Coin
+                            if (coin) {
+                                data.id = coin.id
+                                data.symbol = coin.symbol
+                            }
+                        }}
+                        labelKey={(option) => {
+                            const o = option as Coin
+                            return `${o.symbol.toUpperCase()} (${o.name})`
+                        }}
+                        filterBy={(option, props) => {
+                            const o = option as Coin
+                            const p = props as { text: string }
+                            return o.symbol.startsWith(p.text.toLowerCase())
+                        }}
+                        options={list}
                     />
 
                     <Form.Label>Units</Form.Label>

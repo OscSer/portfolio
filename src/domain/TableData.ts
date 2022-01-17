@@ -1,4 +1,5 @@
 export type TableData = {
+    id: string
     symbol: string
     holdings: number
     cost: number

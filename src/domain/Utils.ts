@@ -39,18 +39,18 @@ const percentToString = (percent: number | undefined): string => {
 const buildTableDataMap = (
     transactions: Transaction[]
 ): Record<string, TableData> => {
-    const symbolsMap: Record<string, Transaction[]> = {}
+    const idMap: Record<string, Transaction[]> = {}
     transactions.forEach((transaction) => {
-        const symbol = transaction.data.symbol
-        if (!symbolsMap[symbol]) {
-            symbolsMap[symbol] = []
+        const id = transaction.data.id
+        if (!idMap[id]) {
+            idMap[id] = []
         }
-        symbolsMap[symbol].push(transaction)
+        idMap[id].push(transaction)
     })
 
     const dataMap: Record<string, TableData> = {}
-    Object.keys(symbolsMap).forEach((symbol) => {
-        const transactions = symbolsMap[symbol]
+    Object.keys(idMap).forEach((id) => {
+        const transactions = idMap[id]
         const buyTransactions: Transaction[] = []
         let unitsSoldCounter = 0
         transactions.forEach((transaction) => {
@@ -62,8 +62,9 @@ const buildTableDataMap = (
         })
         buyTransactions.forEach((transaction) => {
             const data = transaction.data
-            if (!dataMap[data.symbol]) {
-                dataMap[data.symbol] = {
+            if (!dataMap[data.id]) {
+                dataMap[data.id] = {
+                    id: data.id,
                     symbol: data.symbol,
                     holdings: 0,
                     cost: 0,
@@ -73,8 +74,8 @@ const buildTableDataMap = (
             if (unitsSoldCounter === 0 || unitsSoldCounter < data.units) {
                 const units = data.units - unitsSoldCounter
                 const cost = units * data.price
-                dataMap[data.symbol].holdings += units
-                dataMap[data.symbol].cost += cost
+                dataMap[data.id].holdings += units
+                dataMap[data.id].cost += cost
                 unitsSoldCounter = 0
             } else {
                 unitsSoldCounter -= data.units

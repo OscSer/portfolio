@@ -73,7 +73,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     return (
         <Modal show={show} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{symbolMap[symbol.toLowerCase()]}</Modal.Title>
+                <Modal.Title>{symbol.toUpperCase()}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
