@@ -33,6 +33,7 @@ function TransactionModal({
         isNew ? new Date().getTime() : new Date(data.date).getTime()
     )
     const handleSave = () => {
+        console.log({ data })
         if (Object.keys(data).length >= 4 && portfolio) {
             data.date = date
             const ref = isNew ? undefined : transaction.ref

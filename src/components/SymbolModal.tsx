@@ -16,6 +16,7 @@ import DeleteIcon from "@material-ui/icons/Delete"
 import { SymbolMap } from "domain/SymbolMap"
 import { TransactionModal } from "./TransactionModal"
 import { ProfitLoss } from "./ProfitLoss"
+import { sortBy } from "lodash"
 
 type Props = {
     show: boolean
@@ -38,7 +39,10 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
         if (portfolio) {
             getTransactionsBySymbol(user.uid, portfolio, symbol).then(
                 (transactions) => {
-                    setTransactions(transactions)
+                    const orderedTransactions = sortBy(transactions, [
+                        "data.date",
+                    ]).reverse()
+                    setTransactions(orderedTransactions)
                 }
             )
         }

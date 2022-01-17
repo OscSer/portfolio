@@ -19,7 +19,7 @@ const getUniqueId = (length = 20): string => {
 }
 
 const priceToString = (price: number | undefined): string => {
-    if (!price) return ""
+    if (price === undefined) return ""
     return price.toLocaleString("en-EN", {
         style: "currency",
         currency: "USD",
@@ -27,7 +27,7 @@ const priceToString = (price: number | undefined): string => {
 }
 
 const percentToString = (percent: number | undefined): string => {
-    if (!percent) return ""
+    if (percent === undefined) return ""
     return (
         percent.toLocaleString(undefined, {
             minimumFractionDigits: 2,

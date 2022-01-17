@@ -162,43 +162,37 @@ function Table(): JSX.Element {
 
     return (
         <>
-            {data.length ? (
-                <table {...getTableProps()}>
-                    <thead>
-                        {headerGroups.map((headerGroup, index) => (
-                            <tr
-                                {...headerGroup.getHeaderGroupProps()}
-                                key={index}>
-                                {headerGroup.headers.map((column, index) => (
-                                    <th
-                                        {...column.getHeaderProps()}
-                                        key={index}>
-                                        {column.render("Header")}
-                                    </th>
-                                ))}
+            <table {...getTableProps()}>
+                <thead>
+                    {headerGroups.map((headerGroup, index) => (
+                        <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                            {headerGroup.headers.map((column, index) => (
+                                <th {...column.getHeaderProps()} key={index}>
+                                    {column.render("Header")}
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                    {rows.map((row, index) => {
+                        prepareRow(row)
+                        return (
+                            <tr {...row.getRowProps()} key={index}>
+                                {row.cells.map((cell, index) => {
+                                    return (
+                                        <td
+                                            {...cell.getCellProps()}
+                                            key={index}>
+                                            {cell.render("Cell")}
+                                        </td>
+                                    )
+                                })}
                             </tr>
-                        ))}
-                    </thead>
-                    <tbody {...getTableBodyProps()}>
-                        {rows.map((row, index) => {
-                            prepareRow(row)
-                            return (
-                                <tr {...row.getRowProps()} key={index}>
-                                    {row.cells.map((cell, index) => {
-                                        return (
-                                            <td
-                                                {...cell.getCellProps()}
-                                                key={index}>
-                                                {cell.render("Cell")}
-                                            </td>
-                                        )
-                                    })}
-                                </tr>
-                            )
-                        })}
-                    </tbody>
-                </table>
-            ) : null}
+                        )
+                    })}
+                </tbody>
+            </table>
             <SymbolModal
                 symbol={symbol}
                 show={showModal}
