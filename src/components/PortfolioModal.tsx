@@ -1,10 +1,11 @@
 import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
+import FormSelect from "react-bootstrap/FormSelect"
 import { Dispatch, SetStateAction } from "react"
 import { PortfolioService } from "@services"
 import { useUser } from "@hooks"
-import { Portfolio } from "@domain"
+import { Portfolio, PortfolioData, PortfolioType } from "@domain"
 
 type Props = {
     show: boolean
@@ -22,12 +23,14 @@ function PortfolioModal({
     const [user] = useUser()
     const { savePortfolio } = PortfolioService
     const isNew = !portfolio
-    let name = isNew ? "" : portfolio.data.name
+    const data = isNew
+        ? ({ type: PortfolioType.Cryptocurrencies } as PortfolioData)
+        : portfolio.data
 
     const handleSave = () => {
-        if (name) {
+        if (Object.keys(data).length === 2) {
             const ref = isNew ? undefined : portfolio.ref
-            const _portfolio = { ref, data: { name } } as Portfolio
+            const _portfolio = { ref, data } as Portfolio
             savePortfolio(user.uid, _portfolio)
             handleHide()
         }
@@ -45,12 +48,30 @@ function PortfolioModal({
             </Modal.Header>
 
             <Modal.Body>
+                <Form.Label htmlFor="type">Type</Form.Label>
+                <FormSelect
+                    onChange={(event) =>
+                        (data.type = event.target.value as PortfolioType)
+                    }
+                    id="type"
+                    defaultValue={data.type}>
+                    {Object.keys(PortfolioType).map((key: string) => (
+                        <option
+                            key={key}
+                            value={
+                                PortfolioType[key as keyof typeof PortfolioType]
+                            }>
+                            {key}
+                        </option>
+                    ))}
+                </FormSelect>
+
                 <Form.Label htmlFor="portfolioName">Name</Form.Label>
                 <Form.Control
                     type="text"
                     id="portfolioName"
-                    onChange={(event) => (name = event.target.value)}
-                    defaultValue={name}
+                    onChange={(event) => (data.name = event.target.value)}
+                    defaultValue={data.name}
                 />
             </Modal.Body>
 

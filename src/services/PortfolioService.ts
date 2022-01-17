@@ -27,6 +27,7 @@ const savePortfolio = (uid: string, portfolio: Portfolio): void => {
     if (portfolio.ref) {
         const updates: Record<string, unknown> = {}
         updates[`${portfoliosPath}/${portfolio.ref}/name`] = portfolio.data.name
+        updates[`${portfoliosPath}/${portfolio.ref}/type`] = portfolio.data.type
         update(ref(db), updates)
     } else {
         const transactionsRef = ref(db, portfoliosPath)

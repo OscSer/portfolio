@@ -2,10 +2,10 @@ import "./TransactionModal.scss"
 import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction, useRef, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { Transaction, TransactionData } from "@domain"
+import { Transaction, TransactionData, TransactionType } from "@domain"
 import { FormSelect } from "react-bootstrap"
 import DatePicker from "react-datepicker"
 
@@ -26,18 +26,20 @@ function TransactionModal({
     const [portfolio] = usePortfolio()
     const { saveTransaction } = TransactionService
     const isNew = !transaction
-    const data: TransactionData = isNew
-        ? ({ type: "BUY" } as TransactionData)
-        : transaction.data
-    const [date, setDate] = useState(
-        isNew ? new Date().getTime() : new Date(data.date).getTime()
+    const dataRef = useRef<TransactionData>(
+        isNew
+            ? ({ type: TransactionType.Buy } as TransactionData)
+            : transaction.data
     )
+    const [date, setDate] = useState(
+        isNew ? new Date().getTime() : new Date(dataRef.current.date).getTime()
+    )
+
     const handleSave = () => {
-        console.log({ data })
-        if (Object.keys(data).length >= 4 && portfolio) {
-            data.date = date
+        if (Object.keys(dataRef.current).length >= 4 && portfolio) {
+            dataRef.current.date = date
             const ref = isNew ? undefined : transaction.ref
-            const _transaction = { ref, data } as Transaction
+            const _transaction = { ref, data: dataRef.current } as Transaction
             saveTransaction(user.uid, portfolio, _transaction)
             handleHide()
         }
@@ -65,16 +67,22 @@ function TransactionModal({
                 <Form.Label htmlFor="type">Type</Form.Label>
                 <FormSelect
                     onChange={(event) =>
-                        (data.type = event.target.value as "BUY" | "SELL")
+                        (dataRef.current.type = event.target
+                            .value as TransactionType)
                     }
                     id="type"
-                    defaultValue={data.type}>
-                    <option key="buy" value="BUY">
-                        BUY
-                    </option>
-                    <option key="sell" value="SELL">
-                        SELL
-                    </option>
+                    defaultValue={dataRef.current.type}>
+                    {Object.keys(TransactionType).map((key: string) => (
+                        <option
+                            key={key}
+                            value={
+                                TransactionType[
+                                    key as keyof typeof TransactionType
+                                ]
+                            }>
+                            {key}
+                        </option>
+                    ))}
                 </FormSelect>
 
                 <Form.Label htmlFor="symbol">Symbol</Form.Label>
@@ -82,9 +90,10 @@ function TransactionModal({
                     type="text"
                     id="symbol"
                     onChange={(event) =>
-                        (data.symbol = event.target.value.toUpperCase())
+                        (dataRef.current.symbol =
+                            event.target.value.toUpperCase())
                     }
-                    defaultValue={data.symbol}
+                    defaultValue={dataRef.current.symbol}
                 />
 
                 <Form.Label htmlFor="units">Units</Form.Label>
@@ -92,9 +101,13 @@ function TransactionModal({
                     type="number"
                     id="units"
                     onChange={(event) =>
-                        (data.units = Number(event.target.value))
+                        (dataRef.current.units = Number(event.target.value))
                     }
-                    defaultValue={data.units ? data.units.toString() : ""}
+                    defaultValue={
+                        dataRef.current.units
+                            ? dataRef.current.units.toString()
+                            : ""
+                    }
                 />
 
                 <Form.Label htmlFor="price">Price</Form.Label>
@@ -102,9 +115,13 @@ function TransactionModal({
                     type="number"
                     id="price"
                     onChange={(event) =>
-                        (data.price = Number(event.target.value))
+                        (dataRef.current.price = Number(event.target.value))
                     }
-                    defaultValue={data.price ? data.price.toString() : ""}
+                    defaultValue={
+                        dataRef.current.price
+                            ? dataRef.current.price.toString()
+                            : ""
+                    }
                 />
             </Modal.Body>
 

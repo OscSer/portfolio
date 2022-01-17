@@ -110,7 +110,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                                         }
                                     />
                                     <DeleteIcon
-                                        className="icon delete"
+                                        className="icon"
                                         onClick={() =>
                                             handleDeleteTransaction(transaction)
                                         }

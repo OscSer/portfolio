@@ -1,9 +1,9 @@
 import Utils from "./Utils"
-import { Portfolio, PortfolioData } from "./Portfolio"
-import { Transaction, TransactionData } from "./Transaction"
+import { Portfolio, PortfolioData, PortfolioType } from "./Portfolio"
+import { Transaction, TransactionData, TransactionType } from "./Transaction"
 import { TableData } from "./TableData"
 
-export { Utils }
+export { Utils, PortfolioType, TransactionType }
 export type {
     Portfolio,
     PortfolioData,
