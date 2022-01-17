@@ -84,7 +84,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                                 <div>
                                     {new Date(
                                         transaction.data.date
-                                    ).toLocaleDateString()}
+                                    ).toLocaleString()}
                                 </div>
                                 <div>
                                     <ProfitLoss

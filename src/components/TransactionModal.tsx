@@ -2,12 +2,12 @@ import "./TransactionModal.scss"
 import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
-import { Dispatch, SetStateAction, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useRef } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
 import { Transaction, TransactionData, TransactionType } from "@domain"
 import { FormSelect } from "react-bootstrap"
-import DatePicker from "react-datepicker"
+import { DatePicker } from "./DatePicker"
 
 type Props = {
     show: boolean
@@ -22,25 +22,25 @@ function TransactionModal({
     transaction,
     onHide,
 }: Props): JSX.Element {
+    const { saveTransaction } = TransactionService
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const isNew = !transaction
-    const dataRef = useRef<TransactionData>({
+    const initialState = {
+        date: new Date().getTime(),
         type: TransactionType.Buy,
-    } as TransactionData)
-    if (!isNew) {
+    } as TransactionData
+    const dataRef = useRef<TransactionData>(initialState)
+    if (isNew) {
+        dataRef.current = initialState
+    } else {
         dataRef.current = transaction.data
     }
-    const [date, setDate] = useState(
-        isNew ? new Date().getTime() : new Date(dataRef.current.date).getTime()
-    )
-    const { saveTransaction } = TransactionService
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleSave = (event: any) => {
         event?.preventDefault()
         if (Object.keys(dataRef.current).length >= 4 && portfolio) {
-            dataRef.current.date = date
             const ref = isNew ? undefined : transaction.ref
             const _transaction = { ref, data: dataRef.current } as Transaction
             saveTransaction(user.uid, portfolio, _transaction)
@@ -61,11 +61,11 @@ function TransactionModal({
 
             <Modal.Body className="modal-body">
                 <Form onSubmit={handleSave}>
-                    <Form.Label>Date</Form.Label>
                     <DatePicker
-                        className="form-control"
-                        selected={new Date(date)}
-                        onChange={(date: Date) => setDate(date.getTime())}
+                        selected={new Date(dataRef.current.date)}
+                        onChange={(date) =>
+                            (dataRef.current.date = date.getTime())
+                        }
                     />
 
                     <Form.Label>Type</Form.Label>
