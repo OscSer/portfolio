@@ -27,8 +27,10 @@ function PortfolioModal({
         ? ({ type: PortfolioType.Cryptocurrencies } as PortfolioData)
         : portfolio.data
 
-    const handleSave = () => {
-        if (Object.keys(data).length === 2) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleSave = (event: any) => {
+        event?.preventDefault()
+        if (Object.keys(data).length >= 2) {
             const ref = isNew ? undefined : portfolio.ref
             const _portfolio = { ref, data } as Portfolio
             savePortfolio(user.uid, _portfolio)
@@ -48,31 +50,33 @@ function PortfolioModal({
             </Modal.Header>
 
             <Modal.Body>
-                <Form.Label htmlFor="type">Type</Form.Label>
-                <FormSelect
-                    onChange={(event) =>
-                        (data.type = event.target.value as PortfolioType)
-                    }
-                    id="type"
-                    defaultValue={data.type}>
-                    {Object.keys(PortfolioType).map((key: string) => (
-                        <option
-                            key={key}
-                            value={
-                                PortfolioType[key as keyof typeof PortfolioType]
-                            }>
-                            {key}
-                        </option>
-                    ))}
-                </FormSelect>
+                <Form onSubmit={handleSave}>
+                    <Form.Label>Type</Form.Label>
+                    <FormSelect
+                        onChange={(event) =>
+                            (data.type = event.target.value as PortfolioType)
+                        }
+                        defaultValue={data.type}>
+                        {Object.keys(PortfolioType).map((key: string) => (
+                            <option
+                                key={key}
+                                value={
+                                    PortfolioType[
+                                        key as keyof typeof PortfolioType
+                                    ]
+                                }>
+                                {key}
+                            </option>
+                        ))}
+                    </FormSelect>
 
-                <Form.Label htmlFor="portfolioName">Name</Form.Label>
-                <Form.Control
-                    type="text"
-                    id="portfolioName"
-                    onChange={(event) => (data.name = event.target.value)}
-                    defaultValue={data.name}
-                />
+                    <Form.Label>Name</Form.Label>
+                    <Form.Control
+                        type="text"
+                        onChange={(event) => (data.name = event.target.value)}
+                        defaultValue={data.name}
+                    />
+                </Form>
             </Modal.Body>
 
             <Modal.Footer>

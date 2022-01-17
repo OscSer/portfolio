@@ -35,7 +35,9 @@ function TransactionModal({
         isNew ? new Date().getTime() : new Date(dataRef.current.date).getTime()
     )
 
-    const handleSave = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const handleSave = (event: any) => {
+        event?.preventDefault()
         if (Object.keys(dataRef.current).length >= 4 && portfolio) {
             dataRef.current.date = date
             const ref = isNew ? undefined : transaction.ref
@@ -57,72 +59,62 @@ function TransactionModal({
             </Modal.Header>
 
             <Modal.Body className="modal-body">
-                <Form.Label>Date</Form.Label>
-                <DatePicker
-                    className="form-control"
-                    selected={new Date(date)}
-                    onChange={(date: Date) => setDate(date.getTime())}
-                />
+                <Form onSubmit={handleSave}>
+                    <Form.Label>Date</Form.Label>
+                    <DatePicker
+                        className="form-control"
+                        selected={new Date(date)}
+                        onChange={(date: Date) => setDate(date.getTime())}
+                    />
 
-                <Form.Label htmlFor="type">Type</Form.Label>
-                <FormSelect
-                    onChange={(event) =>
-                        (dataRef.current.type = event.target
-                            .value as TransactionType)
-                    }
-                    id="type"
-                    defaultValue={dataRef.current.type}>
-                    {Object.keys(TransactionType).map((key: string) => (
-                        <option
-                            key={key}
-                            value={
-                                TransactionType[
-                                    key as keyof typeof TransactionType
-                                ]
-                            }>
-                            {key}
-                        </option>
-                    ))}
-                </FormSelect>
+                    <Form.Label>Type</Form.Label>
+                    <FormSelect
+                        onChange={(event) =>
+                            (dataRef.current.type = event.target
+                                .value as TransactionType)
+                        }
+                        defaultValue={dataRef.current.type}>
+                        {Object.keys(TransactionType).map((key: string) => (
+                            <option
+                                key={key}
+                                value={
+                                    TransactionType[
+                                        key as keyof typeof TransactionType
+                                    ]
+                                }>
+                                {key}
+                            </option>
+                        ))}
+                    </FormSelect>
 
-                <Form.Label htmlFor="symbol">Symbol</Form.Label>
-                <Form.Control
-                    type="text"
-                    id="symbol"
-                    onChange={(event) =>
-                        (dataRef.current.symbol =
-                            event.target.value.toUpperCase())
-                    }
-                    defaultValue={dataRef.current.symbol}
-                />
+                    <Form.Label>Symbol</Form.Label>
+                    <Form.Control
+                        type="text"
+                        onChange={(event) =>
+                            (dataRef.current.symbol =
+                                event.target.value.toUpperCase())
+                        }
+                        defaultValue={dataRef.current.symbol}
+                    />
 
-                <Form.Label htmlFor="units">Units</Form.Label>
-                <Form.Control
-                    type="number"
-                    id="units"
-                    onChange={(event) =>
-                        (dataRef.current.units = Number(event.target.value))
-                    }
-                    defaultValue={
-                        dataRef.current.units
-                            ? dataRef.current.units.toString()
-                            : ""
-                    }
-                />
+                    <Form.Label>Units</Form.Label>
+                    <Form.Control
+                        type="number"
+                        onChange={(event) =>
+                            (dataRef.current.units = Number(event.target.value))
+                        }
+                        defaultValue={dataRef.current.units?.toString()}
+                    />
 
-                <Form.Label htmlFor="price">Price</Form.Label>
-                <Form.Control
-                    type="number"
-                    id="price"
-                    onChange={(event) =>
-                        (dataRef.current.price = Number(event.target.value))
-                    }
-                    defaultValue={
-                        dataRef.current.price
-                            ? dataRef.current.price.toString()
-                            : ""
-                    }
-                />
+                    <Form.Label>Price</Form.Label>
+                    <Form.Control
+                        type="number"
+                        onChange={(event) =>
+                            (dataRef.current.price = Number(event.target.value))
+                        }
+                        defaultValue={dataRef.current.price?.toString()}
+                    />
+                </Form>
             </Modal.Body>
 
             <Modal.Footer>

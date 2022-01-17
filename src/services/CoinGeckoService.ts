@@ -21,11 +21,19 @@ const getMarketData = (
                 )
                     .then((response) => response.json())
                     .then((data) => {
-                        marketDataMap[symbol] = {
-                            price: data.market_data.current_price.usd,
-                            ath: data.market_data.ath.usd,
-                            athPercent:
-                                data.market_data.ath_change_percentage.usd,
+                        if (data.error) {
+                            marketDataMap[symbol] = {
+                                price: NaN,
+                                ath: NaN,
+                                athPercent: NaN,
+                            }
+                        } else {
+                            marketDataMap[symbol] = {
+                                price: data.market_data.current_price.usd,
+                                ath: data.market_data.ath.usd,
+                                athPercent:
+                                    data.market_data.ath_change_percentage.usd,
+                            }
                         }
                         resolve(true)
                     })
