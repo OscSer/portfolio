@@ -24,16 +24,17 @@ function TransactionModal({
 }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
-    const { saveTransaction } = TransactionService
     const isNew = !transaction
-    const dataRef = useRef<TransactionData>(
-        isNew
-            ? ({ type: TransactionType.Buy } as TransactionData)
-            : transaction.data
-    )
+    const dataRef = useRef<TransactionData>({
+        type: TransactionType.Buy,
+    } as TransactionData)
+    if (!isNew) {
+        dataRef.current = transaction.data
+    }
     const [date, setDate] = useState(
         isNew ? new Date().getTime() : new Date(dataRef.current.date).getTime()
     )
+    const { saveTransaction } = TransactionService
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleSave = (event: any) => {
@@ -103,7 +104,7 @@ function TransactionModal({
                         onChange={(event) =>
                             (dataRef.current.units = Number(event.target.value))
                         }
-                        defaultValue={dataRef.current.units?.toString()}
+                        defaultValue={dataRef.current.units}
                     />
 
                     <Form.Label>Price</Form.Label>
@@ -112,7 +113,7 @@ function TransactionModal({
                         onChange={(event) =>
                             (dataRef.current.price = Number(event.target.value))
                         }
-                        defaultValue={dataRef.current.price?.toString()}
+                        defaultValue={dataRef.current.price}
                     />
                 </Form>
             </Modal.Body>
