@@ -11,9 +11,9 @@ function Table(): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useState<TableData[]>([])
-    const [, setBalance] = useBalance()
     const [showModal, setShowModal] = useState(false)
     const [symbol, setSymbol] = useState("")
+    const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
     const { getMarketData } = CoinGeckoService
     const { priceToString, percentToString, buildTableDataMap } = Utils
@@ -24,33 +24,32 @@ function Table(): JSX.Element {
                 const tableDataMap = buildTableDataMap(transactions)
                 getMarketData(Object.keys(tableDataMap)).then(
                     (marketDataMap) => {
-                        const _data: TableData[] = []
-                        let _balance = 0
+                        const tableData: TableData[] = []
+                        let balance = 0
                         Object.keys(tableDataMap).forEach((id) => {
-                            const tableData = tableDataMap[id]
-                            const marketData = marketDataMap[id]
-                            const mktValue =
-                                tableData.holdings * marketData.price
-                            const profit = mktValue - tableData.cost
-                            _data.push({
-                                ...tableData,
-                                profit: profit,
-                                profitPercent: 100 * (profit / tableData.cost),
-                                price: marketData.price,
-                                ath: marketData.ath,
-                                athPercent: marketData.athPercent,
-                                mktValue: mktValue,
-                                avgCost: tableData.cost / tableData.holdings,
+                            const coin = tableDataMap[id]
+                            const market = marketDataMap[id]
+                            const mktValue = coin.holdings * market.price
+                            const profit = mktValue - coin.cost
+                            tableData.push({
+                                ...coin,
+                                mktValue,
+                                profit,
+                                profitPercent: 100 * (profit / coin.cost),
+                                price: market.price,
+                                ath: market.ath,
+                                athPercent: market.athPercent,
+                                avgCost: coin.cost / coin.holdings,
                             })
-                            _balance += mktValue
+                            balance += mktValue
                         })
-                        setBalance(_balance)
+                        setBalance(balance)
                         setData(
-                            _data.map(
+                            tableData.map(
                                 (item): TableData => ({
                                     ...item,
                                     portfolioPercent: item.mktValue
-                                        ? 100 * (item.mktValue / _balance)
+                                        ? 100 * (item.mktValue / balance)
                                         : 0,
                                 })
                             )
@@ -96,20 +95,20 @@ function Table(): JSX.Element {
                 ),
             },
             {
-                Header: "Profit $",
-                accessor: "profit",
-                Cell: ({ value }: { value: number }) => (
-                    <ProfitLoss value={value}>
-                        {priceToString(value)}
-                    </ProfitLoss>
-                ),
-            },
-            {
                 Header: "Profit %",
                 accessor: "profitPercent",
                 Cell: ({ value }: { value: number }) => (
                     <ProfitLoss value={value}>
                         {percentToString(value)}
+                    </ProfitLoss>
+                ),
+            },
+            {
+                Header: "Profit $",
+                accessor: "profit",
+                Cell: ({ value }: { value: number }) => (
+                    <ProfitLoss value={value}>
+                        {priceToString(value)}
                     </ProfitLoss>
                 ),
             },
@@ -121,11 +120,6 @@ function Table(): JSX.Element {
             {
                 Header: "Price",
                 accessor: "price",
-                Cell: ({ value }) => priceToString(value),
-            },
-            {
-                Header: "ATH",
-                accessor: "ath",
                 Cell: ({ value }) => priceToString(value),
             },
             {

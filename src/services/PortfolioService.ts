@@ -12,7 +12,7 @@ const getAllPortfolios = (uid: string): Promise<Portfolio[]> => {
             if (snapshot.exists()) {
                 snapshot.forEach((child) => {
                     portfolios.push({
-                        ref: child.key,
+                        ref: child.key || undefined,
                         data: child.val() as PortfolioData,
                     })
                 })

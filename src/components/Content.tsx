@@ -5,7 +5,6 @@ import { TransactionModal } from "./TransactionModal"
 import { Table } from "./Table"
 import { Utils } from "@domain"
 import { useBalance } from "@hooks"
-import { ProfitLoss } from "./ProfitLoss"
 
 function Content(): JSX.Element {
     const [showModal, setShowModal] = useState(false)
@@ -23,9 +22,7 @@ function Content(): JSX.Element {
                 <div>
                     <h1>Balance</h1>
                     <div className="content__price">
-                        <ProfitLoss value={balance}>
-                            {priceToString(balance)}
-                        </ProfitLoss>
+                        {priceToString(balance)}
                     </div>
                 </div>
                 <div>

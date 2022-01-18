@@ -30,16 +30,16 @@ function Header(): JSX.Element {
                 const _options: JSX.Element[] = []
                 _portfolios.forEach((portfolio) => {
                     const option = (
-                        <option
-                            key={portfolio.ref}
-                            value={portfolio.ref ? portfolio.ref : ""}>
+                        <option key={portfolio.ref} value={portfolio.ref || ""}>
                             {portfolio.data.name}
                         </option>
                     )
                     _options.push(option)
                 })
                 setOptions(_options)
-                setPortfolio(_portfolios[0])
+                const ref = window.localStorage.getItem("selectedPortfolio")
+                const portfolio = find(_portfolios, { ref }) as Portfolio
+                setPortfolio(portfolio || _portfolios[0])
             }
         })
     }, [getAllPortfolios, setPortfolio, user.uid])
@@ -52,19 +52,22 @@ function Header(): JSX.Element {
         signOut(auth)
     }
 
-    const handleChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        setPortfolio(find(portfolios.current, { ref: event.target.value }))
+    const handlePortfolioChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        const ref = event.target.value
+        const portfolio = find(portfolios.current, { ref })
+        window.localStorage.setItem("selectedPortfolio", ref)
+        setPortfolio(portfolio)
     }
 
-    const handleHide = () => {
+    const handleModalHide = () => {
         getPortfolios()
     }
 
-    const handleEdit = () => {
+    const handlePortfolioEdit = () => {
         setShowModal(true)
     }
 
-    const handleAdd = () => {
+    const handlePortfolioAdd = () => {
         setPortfolio(undefined)
         setShowModal(true)
     }
@@ -73,12 +76,15 @@ function Header(): JSX.Element {
         <div className="header">
             <div className="header__portfolio">
                 <FormSelect
-                    onChange={handleChange}
-                    defaultValue={portfolio?.ref ? portfolio.ref : ""}>
+                    onChange={handlePortfolioChange}
+                    value={portfolio?.ref || ""}>
                     {options}
                 </FormSelect>
-                <EditIcon className="icon" onClick={handleEdit} />
-                <AddIcon className="icon icon-add" onClick={handleAdd} />
+                <EditIcon className="icon" onClick={handlePortfolioEdit} />
+                <AddIcon
+                    className="icon icon-add"
+                    onClick={handlePortfolioAdd}
+                />
             </div>
             <div className="header__user icon" onClick={handleSignOut}>
                 <div className="header__username">{user.displayName}</div>
@@ -88,7 +94,7 @@ function Header(): JSX.Element {
                 show={showModal}
                 setShow={setShowModal}
                 portfolio={portfolio}
-                onHide={handleHide}
+                onHide={handleModalHide}
             />
         </div>
     )

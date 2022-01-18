@@ -1,5 +1,6 @@
-.modal-body {
-    label {
-        padding-top: 7px;
+.transaction-modal {
+    .actions {
+        display: flex;
+        justify-content: space-between;
     }
 }

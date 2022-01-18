@@ -6,6 +6,7 @@ import { Dispatch, SetStateAction } from "react"
 import { PortfolioService } from "@services"
 import { useUser } from "@hooks"
 import { Portfolio, PortfolioData, PortfolioType } from "@domain"
+import { InputGroup } from "react-bootstrap"
 
 type Props = {
     show: boolean
@@ -51,31 +52,38 @@ function PortfolioModal({
 
             <Modal.Body>
                 <Form onSubmit={handleSave}>
-                    <Form.Label>Type</Form.Label>
-                    <FormSelect
-                        onChange={(event) =>
-                            (data.type = event.target.value as PortfolioType)
-                        }
-                        defaultValue={data.type}>
-                        {Object.keys(PortfolioType).map((key: string) => (
-                            <option
-                                key={key}
-                                value={
-                                    PortfolioType[
-                                        key as keyof typeof PortfolioType
-                                    ]
-                                }>
-                                {key}
-                            </option>
-                        ))}
-                    </FormSelect>
+                    <InputGroup>
+                        <InputGroup.Text>Type</InputGroup.Text>
+                        <FormSelect
+                            onChange={(event) =>
+                                (data.type = event.target
+                                    .value as PortfolioType)
+                            }
+                            defaultValue={data.type}>
+                            {Object.keys(PortfolioType).map((key: string) => (
+                                <option
+                                    key={key}
+                                    value={
+                                        PortfolioType[
+                                            key as keyof typeof PortfolioType
+                                        ]
+                                    }>
+                                    {key}
+                                </option>
+                            ))}
+                        </FormSelect>
+                    </InputGroup>
 
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control
-                        type="text"
-                        onChange={(event) => (data.name = event.target.value)}
-                        defaultValue={data.name}
-                    />
+                    <InputGroup>
+                        <InputGroup.Text>Name</InputGroup.Text>
+                        <Form.Control
+                            type="text"
+                            onChange={(event) =>
+                                (data.name = event.target.value)
+                            }
+                            defaultValue={data.name}
+                        />
+                    </InputGroup>
                 </Form>
             </Modal.Body>
 

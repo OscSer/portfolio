@@ -13,6 +13,6 @@ export type TransactionData = {
 }
 
 export type Transaction = {
-    ref: string | null
+    ref?: string
     data: TransactionData
 }

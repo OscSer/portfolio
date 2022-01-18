@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Form } from "react-bootstrap"
+import { InputGroup } from "react-bootstrap"
 import ReactDatePicker from "react-datepicker"
 
 type Props = {
@@ -21,14 +21,16 @@ function DatePicker({ onChange, selected }: Props): JSX.Element {
 
     return (
         <>
-            <Form.Label>Date</Form.Label>
-            <ReactDatePicker
-                className="form-control"
-                dateFormat="MM/dd/yyyy, h:mm aa"
-                showTimeSelect
-                selected={date}
-                onChange={handleChange}
-            />
+            <InputGroup>
+                <InputGroup.Text>Date</InputGroup.Text>
+                <ReactDatePicker
+                    className="form-control"
+                    dateFormat="MM/dd/yyyy, h:mm aa"
+                    showTimeSelect
+                    selected={date}
+                    onChange={handleChange}
+                />
+            </InputGroup>
         </>
     )
 }

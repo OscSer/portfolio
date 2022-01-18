@@ -29,7 +29,7 @@ const getAllTransactions = (
             if (snapshot.exists()) {
                 snapshot.forEach((child) => {
                     portfolios.push({
-                        ref: child.key,
+                        ref: child.key || undefined,
                         data: child.val() as TransactionData,
                     })
                 })
@@ -58,7 +58,7 @@ const getTransactionsBySymbol = (
             if (snapshot.exists()) {
                 snapshot.forEach((child) => {
                     portfolios.push({
-                        ref: child.key,
+                        ref: child.key || undefined,
                         data: child.val() as TransactionData,
                     })
                 })

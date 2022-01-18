@@ -3,11 +3,11 @@ import { sortBy } from "lodash"
 
 export class SymbolMap {
     private static instance: SymbolMap
-    public map: Record<string, Coin> = {}
-    public list: Coin[] = []
+    public coinMap: Record<string, Coin> = {}
+    public coinList: Coin[] = []
 
     private constructor() {
-        //void
+        /* singleton */
     }
 
     public static getInstance(): SymbolMap {
@@ -16,9 +16,9 @@ export class SymbolMap {
             fetch("https://api.coingecko.com/api/v3/coins/list")
                 .then((response) => response.json())
                 .then((data) => {
-                    SymbolMap.instance.list = sortBy(data, ["symbol"])
+                    SymbolMap.instance.coinList = sortBy(data, ["symbol"])
                     data.forEach((coin: Coin) => {
-                        SymbolMap.instance.map[coin.id] = coin
+                        SymbolMap.instance.coinMap[coin.id] = coin
                     })
                 })
         }

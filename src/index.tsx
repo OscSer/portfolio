@@ -4,7 +4,7 @@ import "react-bootstrap-typeahead/css/Typeahead.css"
 import { StrictMode } from "react"
 import { render } from "react-dom"
 import { App } from "@components"
-import { SymbolMap } from "domain/SymbolMap"
+import { SymbolMap } from "@domain"
 
 /* init singleton */
 SymbolMap.getInstance()

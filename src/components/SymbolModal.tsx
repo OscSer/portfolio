@@ -83,12 +83,12 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                     {transactions.map((transaction) => (
                         <ListGroup.Item key={transaction.ref}>
                             <div className="group">
-                                <div>
+                                <div className="date">
                                     {new Date(
                                         transaction.data.date
                                     ).toLocaleString()}
                                 </div>
-                                <div>
+                                <div className="type">
                                     <ProfitLoss
                                         value={
                                             transaction.data.type === "BUY"
@@ -98,9 +98,19 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                                         {transaction.data.type}
                                     </ProfitLoss>
                                 </div>
-                                <div>{transaction.data.units}</div>
-                                <div>
-                                    {priceToString(transaction.data.price)}
+                                <div className="units">
+                                    {transaction.data.units}
+                                </div>
+                                <div className="price">
+                                    {`Price: ${priceToString(
+                                        transaction.data.price
+                                    )}`}
+                                </div>
+                                <div className="total">
+                                    {`Total: ${priceToString(
+                                        transaction.data.units *
+                                            transaction.data.price
+                                    )}`}
                                 </div>
                                 <div className="actions">
                                     <EditIcon
