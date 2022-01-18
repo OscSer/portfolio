@@ -72,15 +72,15 @@ function Table(): JSX.Element {
         getTransactions()
     }, [getTransactions, portfolio])
 
-    const showSymbolModal = (symbol: string) => {
+    const showSymbolModal = useCallback((symbol: string) => {
         setSymbol(symbol)
         setShowModal(true)
-    }
+    }, [])
 
-    const handleHide = () => {
+    const handleHide = useCallback(() => {
         setSymbol("")
         getTransactions()
-    }
+    }, [getTransactions])
 
     const columns = React.useMemo<Column<TableData>[]>(
         () => [
@@ -116,7 +116,7 @@ function Table(): JSX.Element {
             {
                 Header: "Holdings",
                 accessor: "holdings",
-                Cell: ({ value }) => value.toLocaleString(),
+                Cell: ({ value }) => Number(value.toFixed(8)),
             },
             {
                 Header: "Price",
@@ -154,7 +154,7 @@ function Table(): JSX.Element {
                 Cell: ({ value }) => percentToString(value),
             },
         ],
-        [percentToString, priceToString]
+        [percentToString, priceToString, showSymbolModal]
     )
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -193,12 +193,14 @@ function Table(): JSX.Element {
                     })}
                 </tbody>
             </table>
-            <SymbolModal
-                symbol={symbol}
-                show={showModal}
-                setShow={setShowModal}
-                onHide={handleHide}
-            />
+            {showModal ? (
+                <SymbolModal
+                    symbol={symbol}
+                    show={showModal}
+                    setShow={setShowModal}
+                    onHide={handleHide}
+                />
+            ) : null}
         </>
     )
 }

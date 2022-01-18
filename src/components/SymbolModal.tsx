@@ -13,7 +13,6 @@ import { Transaction, Utils } from "@domain"
 import { ListGroup } from "react-bootstrap"
 import EditIcon from "@material-ui/icons/Edit"
 import DeleteIcon from "@material-ui/icons/Delete"
-import { SymbolMap } from "domain/SymbolMap"
 import { TransactionModal } from "./TransactionModal"
 import { ProfitLoss } from "./ProfitLoss"
 import { sortBy } from "lodash"
@@ -33,30 +32,33 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const { getTransactionsBySymbol, deleteTransaction } = TransactionService
     const { priceToString } = Utils
-    const symbolMap = SymbolMap.getInstance().map
+
+    const handleHide = useCallback(() => {
+        onHide()
+        setShow(false)
+        setTransactions([])
+    }, [onHide, setShow])
 
     const getTransactions = useCallback(() => {
         if (portfolio) {
             getTransactionsBySymbol(user.uid, portfolio, symbol).then(
                 (transactions) => {
-                    const orderedTransactions = sortBy(transactions, [
-                        "data.date",
-                    ]).reverse()
-                    setTransactions(orderedTransactions)
+                    if (transactions.length) {
+                        const orderedTransactions = sortBy(transactions, [
+                            "data.date",
+                        ]).reverse()
+                        setTransactions(orderedTransactions)
+                    } else {
+                        handleHide()
+                    }
                 }
             )
         }
-    }, [getTransactionsBySymbol, portfolio, symbol, user.uid])
+    }, [getTransactionsBySymbol, handleHide, portfolio, symbol, user.uid])
 
     useEffect(() => {
         getTransactions()
     }, [getTransactions, symbol])
-
-    const handleHide = () => {
-        onHide()
-        setShow(false)
-        setTransactions([])
-    }
 
     const handleEditTransaction = (transaction: Transaction) => {
         setTransaction(transaction)
