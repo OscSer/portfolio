@@ -184,49 +184,65 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "ATH %",
             accessor: "athPercent",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "24h %",
             accessor: "priceChange24h",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "7d %",
             accessor: "priceChange7d",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "14d %",
             accessor: "priceChange14d",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "30d %",
             accessor: "priceChange30d",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "60d %",
             accessor: "priceChange60d",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "200d %",
             accessor: "priceChange200d",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "1y %",
             accessor: "priceChange1y",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            Cell: ({ value }: { value: number }) => (
+                <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
+            ),
         },
         {
             Header: "Mkt Value",
