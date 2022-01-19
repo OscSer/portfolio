@@ -1,6 +1,6 @@
 import "./Table.scss"
 import { TableData, Utils } from "@domain"
-import { Column, useTable } from "react-table"
+import { Column, useTable, useSortBy } from "react-table"
 import React, { useCallback, useEffect, useState } from "react"
 import { CoinGeckoService, TransactionService } from "@services"
 import { useBalance, usePortfolio, useUser } from "@hooks"
@@ -152,7 +152,7 @@ function Table(): JSX.Element {
     )
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-        useTable({ columns, data })
+        useTable({ columns, data }, useSortBy)
 
     return (
         <>
@@ -161,7 +161,11 @@ function Table(): JSX.Element {
                     {headerGroups.map((headerGroup, index) => (
                         <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                             {headerGroup.headers.map((column, index) => (
-                                <th {...column.getHeaderProps()} key={index}>
+                                <th
+                                    {...column.getHeaderProps(
+                                        column.getSortByToggleProps()
+                                    )}
+                                    key={index}>
                                     {column.render("Header")}
                                 </th>
                             ))}
