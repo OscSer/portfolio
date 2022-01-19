@@ -38,8 +38,8 @@ function Header(): JSX.Element {
                 })
                 setOptions(_options)
                 const ref = window.localStorage.getItem("selectedPortfolio")
-                const portfolio = find(_portfolios, { ref }) as Portfolio
-                setPortfolio(portfolio || _portfolios[0])
+                const _portfolio = find(_portfolios, { ref }) as Portfolio
+                setPortfolio(_portfolio || _portfolios[0])
             }
         })
     }, [getAllPortfolios, setPortfolio, user.uid])

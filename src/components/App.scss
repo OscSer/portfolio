@@ -1,15 +1,16 @@
 .app {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    align-items: center;
+    width: 100vw;
     padding: 30px;
 }
 
-.spinner {
+.custom-spinner {
     position: fixed;
     z-index: 999;
-    height: 5em;
-    width: 5em;
+    height: 40px;
+    width: 40px;
     overflow: show;
     margin: auto;
     top: 0;

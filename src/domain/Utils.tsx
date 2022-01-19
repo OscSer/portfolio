@@ -161,7 +161,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             ),
         },
         {
-            Header: "Profit $",
+            Header: "Profit",
             accessor: "profit",
             sortDescFirst: true,
             Cell: ({ value }: { value: number }) => (
@@ -169,16 +169,16 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             ),
         },
         {
-            Header: "Holdings",
-            accessor: "holdings",
-            sortDescFirst: true,
-            Cell: ({ value }) => Number(value.toFixed(8)),
-        },
-        {
             Header: "Price",
             accessor: "price",
             sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
+        },
+        {
+            Header: "ATH",
+            accessor: "ath",
+            sortDescFirst: true,
+            Cell: ({ value }: { value: number }) => priceToString(value),
         },
         {
             Header: "ATH %",
@@ -243,6 +243,12 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
+        },
+        {
+            Header: "Holdings",
+            accessor: "holdings",
+            sortDescFirst: true,
+            Cell: ({ value }) => Number(value.toFixed(8)),
         },
         {
             Header: "Mkt Value",

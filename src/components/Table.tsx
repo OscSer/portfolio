@@ -7,7 +7,13 @@ import {
     PortfolioService,
     TransactionService,
 } from "@services"
-import { useBalance, usePortfolio, useTableData, useUser } from "@hooks"
+import {
+    useBalance,
+    useLoading,
+    usePortfolio,
+    useTableData,
+    useUser,
+} from "@hooks"
 import { SymbolModal } from "./SymbolModal"
 import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
@@ -23,6 +29,7 @@ function Table(): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useTableData()
+    const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
     const [symbol, setSymbol] = useState("")
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
@@ -33,41 +40,65 @@ function Table(): JSX.Element {
 
     const getTransactions = useCallback(() => {
         if (portfolio) {
-            getAllTransactions(user.uid, portfolio).then((transactions) => {
-                const tableDataMap = buildTableDataMap(transactions)
-                getMarketData(Object.keys(tableDataMap)).then(
-                    (marketDataMap) => {
-                        const { tableData, balance } = buildTableData(
-                            tableDataMap,
-                            marketDataMap
-                        )
-                        getWeightings(user.uid, portfolio).then(
-                            (weightings) => {
-                                setData(
-                                    addWeightingProps(
-                                        tableData,
-                                        weightings,
-                                        balance
-                                    )
-                                )
-                                setBalance(balance)
-                            }
-                        )
-                    }
-                )
-            })
+            setLoading(true)
+            const promises: Promise<boolean>[] = []
 
-            getCustomColumns(user.uid, portfolio).then((_customColumns) => {
-                if (_customColumns) {
-                    setCustomColumns(_customColumns)
-                }
+            promises.push(
+                new Promise((resolve) => {
+                    getAllTransactions(user.uid, portfolio).then(
+                        (transactions) => {
+                            const tableDataMap = buildTableDataMap(transactions)
+                            getMarketData(Object.keys(tableDataMap)).then(
+                                (marketDataMap) => {
+                                    const { tableData, balance } =
+                                        buildTableData(
+                                            tableDataMap,
+                                            marketDataMap
+                                        )
+                                    getWeightings(user.uid, portfolio).then(
+                                        (weightings) => {
+                                            setData(
+                                                addWeightingProps(
+                                                    tableData,
+                                                    weightings,
+                                                    balance
+                                                )
+                                            )
+                                            setBalance(balance)
+                                            resolve(true)
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                })
+            )
+
+            promises.push(
+                new Promise((resolve) => {
+                    getCustomColumns(user.uid, portfolio).then(
+                        (_customColumns) => {
+                            if (_customColumns) {
+                                setCustomColumns(_customColumns)
+                            } else {
+                                setCustomColumns(defaultCustomColumns())
+                            }
+                            resolve(true)
+                        }
+                    )
+                })
+            )
+
+            Promise.all(promises).then(() => {
+                setLoading(false)
             })
         }
     }, [
         portfolio,
+        setLoading,
         getAllTransactions,
         user.uid,
-        getCustomColumns,
         buildTableDataMap,
         getMarketData,
         buildTableData,
@@ -75,6 +106,8 @@ function Table(): JSX.Element {
         setData,
         addWeightingProps,
         setBalance,
+        getCustomColumns,
+        defaultCustomColumns,
     ])
 
     useEffect(() => {
@@ -132,13 +165,9 @@ function Table(): JSX.Element {
                                     <span>
                                         {column.isSorted ? (
                                             column.isSortedDesc ? (
-                                                <ArrowDownIcon
-                                                    style={{ color: "#2D5ED7" }}
-                                                />
+                                                <ArrowDownIcon className="header-icon" />
                                             ) : (
-                                                <ArrowUpIcon
-                                                    style={{ color: "#2D5ED7" }}
-                                                />
+                                                <ArrowUpIcon className="header-icon" />
                                             )
                                         ) : (
                                             ""
