@@ -110,7 +110,7 @@ function Table(): JSX.Element {
     )
 
     const initialState: Partial<TableState<TableData>> = {
-        sortBy: [{ id: "currentWeighting", desc: true }],
+        sortBy: [{ id: "mktValue", desc: true }],
     }
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
