@@ -1,8 +1,4 @@
-type MarketData = {
-    price: number
-    ath: number
-    athPercent: number
-}
+import { MarketData } from "@domain"
 
 const getMarketData = (ids: string[]): Promise<Record<string, MarketData>> => {
     const promises: Promise<boolean>[] = []

@@ -36,4 +36,37 @@ const savePortfolio = (uid: string, portfolio: Portfolio): void => {
     }
 }
 
-export default { getAllPortfolios, savePortfolio }
+const getWeightings = (
+    uid: string,
+    portfolio: Portfolio
+): Promise<Record<string, number>> => {
+    const dbRef = ref(db)
+    const weightingsPath = `users/${uid}/portfolios/${portfolio.ref}/weightings`
+
+    return new Promise((resolve) => {
+        get(child(dbRef, weightingsPath)).then((snapshot) => {
+            if (snapshot.exists()) {
+                resolve(snapshot.val())
+            } else {
+                resolve({})
+            }
+        })
+    })
+}
+
+const saveWeightings = (
+    uid: string,
+    portfolio: Portfolio,
+    weightings: Record<string, number>
+): void => {
+    const weightingsPath = `users/${uid}/portfolios/${portfolio.ref}/weightings`
+    const weightingsRef = ref(db, weightingsPath)
+    set(weightingsRef, weightings)
+}
+
+export default {
+    getAllPortfolios,
+    savePortfolio,
+    getWeightings,
+    saveWeightings,
+}

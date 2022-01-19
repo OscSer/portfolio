@@ -7,9 +7,11 @@ import { TransactionModal } from "./TransactionModal"
 import { Table } from "./Table"
 import { Utils } from "@domain"
 import { useBalance } from "@hooks"
+import { WeightingsModal } from "./WeightingsModal"
 
 function Content(): JSX.Element {
-    const [showModal, setShowModal] = useState(false)
+    const [showTransactionModal, setShowTransactionModal] = useState(false)
+    const [showWeightingsModal, setShowWeightingsModal] = useState(false)
     const tableRef = useRef(Utils.getUniqueId())
     const [balance] = useBalance()
     const { priceToString } = Utils
@@ -28,23 +30,32 @@ function Content(): JSX.Element {
                     </div>
                 </div>
                 <div className="content__actions">
-                    <Button onClick={() => setShowModal(true)}>
+                    <Button onClick={() => setShowTransactionModal(true)}>
                         Add Transaction
                     </Button>
                     <DropdownButton title="Settings" variant="outline-primary">
                         <Dropdown.Item
-                            onClick={() => console.log("hola mundo")}>
+                            onClick={() => setShowWeightingsModal(true)}>
                             Set Weightings
                         </Dropdown.Item>
                     </DropdownButton>
                 </div>
             </div>
             <Table key={tableRef.current} />
-            <TransactionModal
-                show={showModal}
-                setShow={setShowModal}
-                onHide={handleHide}
-            />
+            {showTransactionModal ? (
+                <TransactionModal
+                    show={showTransactionModal}
+                    setShow={setShowTransactionModal}
+                    onHide={handleHide}
+                />
+            ) : null}
+            {showWeightingsModal ? (
+                <WeightingsModal
+                    show={showWeightingsModal}
+                    setShow={setShowWeightingsModal}
+                    onHide={handleHide}
+                />
+            ) : null}
         </div>
     )
 }

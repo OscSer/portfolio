@@ -11,5 +11,7 @@ export type TableData = {
     price?: number
     ath?: number
     athPercent?: number
-    portfolioPercent?: number
+    currentWeighting?: number
+    desiredWeighting?: number
+    weightingDiff?: number
 }

@@ -74,7 +74,11 @@ function TransactionModal({
     }
 
     return (
-        <Modal show={show} onHide={handleHide} className="transaction-modal">
+        <Modal
+            show={show}
+            onHide={handleHide}
+            size="sm"
+            className="transaction-modal">
             <Modal.Header closeButton>
                 <Modal.Title>{isNew ? "Add" : "Edit"} Transaction</Modal.Title>
             </Modal.Header>
@@ -82,7 +86,7 @@ function TransactionModal({
             <Modal.Body className="body">
                 <Form onSubmit={handleSave}>
                     <DatePicker
-                        selected={new Date(data.date)}
+                        selected={data.date ? new Date(data.date) : new Date()}
                         onChange={(date) =>
                             setData((prev) => ({
                                 ...prev,
@@ -146,12 +150,13 @@ function TransactionModal({
                         <InputGroup.Text>Units</InputGroup.Text>
                         <Form.Control
                             type="number"
-                            onChange={(event) =>
+                            onChange={(event) => {
+                                const value = event.target.value
                                 setData((prev) => ({
                                     ...prev,
-                                    units: Number(event.target.value),
+                                    units: value === "" ? NaN : Number(value),
                                 }))
-                            }
+                            }}
                             value={data.units === undefined ? "" : data.units}
                         />
                     </InputGroup>
@@ -160,12 +165,13 @@ function TransactionModal({
                         <InputGroup.Text>Price</InputGroup.Text>
                         <Form.Control
                             type="number"
-                            onChange={(event) =>
+                            onChange={(event) => {
+                                const value = event.target.value
                                 setData((prev) => ({
                                     ...prev,
-                                    price: Number(event.target.value),
+                                    price: value === "" ? NaN : Number(value),
                                 }))
-                            }
+                            }}
                             value={data.price === undefined ? "" : data.price}
                         />
                     </InputGroup>
@@ -175,11 +181,7 @@ function TransactionModal({
                         <Form.Control
                             type="number"
                             disabled
-                            value={
-                                data.price && data.units
-                                    ? data.price * data.units
-                                    : ""
-                            }
+                            value={Number(data.price) * Number(data.units)}
                         />
                     </InputGroup>
                 </Form>

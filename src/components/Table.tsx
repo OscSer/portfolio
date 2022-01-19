@@ -2,21 +2,27 @@ import "./Table.scss"
 import { TableData, Utils } from "@domain"
 import { Column, useTable, useSortBy } from "react-table"
 import React, { useCallback, useEffect, useState } from "react"
-import { CoinGeckoService, TransactionService } from "@services"
-import { useBalance, usePortfolio, useUser } from "@hooks"
-import { ProfitLoss } from "./ProfitLoss"
+import {
+    CoinGeckoService,
+    PortfolioService,
+    TransactionService,
+} from "@services"
+import { useBalance, usePortfolio, useTableData, useUser } from "@hooks"
 import { SymbolModal } from "./SymbolModal"
 
 function Table(): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
-    const [data, setData] = useState<TableData[]>([])
+    const [data, setData] = useTableData()
     const [showModal, setShowModal] = useState(false)
     const [symbol, setSymbol] = useState("")
+    const [weightings, setWeightings] = useState<Record<string, number>>({})
     const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
     const { getMarketData } = CoinGeckoService
-    const { priceToString, percentToString, buildTableDataMap } = Utils
+    const { getWeightings } = PortfolioService
+    const { buildTableDataMap, buildTableData, addWeightingProps, getColumns } =
+        Utils
 
     const getTransactions = useCallback(() => {
         if (portfolio) {
@@ -24,35 +30,22 @@ function Table(): JSX.Element {
                 const tableDataMap = buildTableDataMap(transactions)
                 getMarketData(Object.keys(tableDataMap)).then(
                     (marketDataMap) => {
-                        const tableData: TableData[] = []
-                        let balance = 0
-                        Object.keys(tableDataMap).forEach((id) => {
-                            const coin = tableDataMap[id]
-                            const market = marketDataMap[id]
-                            const mktValue = coin.holdings * market.price
-                            const profit = mktValue - coin.cost
-                            tableData.push({
-                                ...coin,
-                                mktValue,
-                                profit,
-                                profitPercent: 100 * (profit / coin.cost),
-                                price: market.price,
-                                ath: market.ath,
-                                athPercent: market.athPercent,
-                                avgCost: coin.cost / coin.holdings,
-                            })
-                            balance += mktValue
-                        })
-                        setBalance(balance)
-                        setData(
-                            tableData.map(
-                                (item): TableData => ({
-                                    ...item,
-                                    portfolioPercent: item.mktValue
-                                        ? 100 * (item.mktValue / balance)
-                                        : 0,
-                                })
-                            )
+                        const { tableData, balance } = buildTableData(
+                            tableDataMap,
+                            marketDataMap
+                        )
+                        getWeightings(user.uid, portfolio).then(
+                            (weightings) => {
+                                setData(
+                                    addWeightingProps(
+                                        tableData,
+                                        weightings,
+                                        balance
+                                    )
+                                )
+                                setBalance(balance)
+                                setWeightings(weightings)
+                            }
                         )
                     }
                 )
@@ -64,7 +57,11 @@ function Table(): JSX.Element {
         user.uid,
         buildTableDataMap,
         getMarketData,
+        buildTableData,
+        getWeightings,
         setBalance,
+        setData,
+        addWeightingProps,
     ])
 
     useEffect(() => {
@@ -94,61 +91,9 @@ function Table(): JSX.Element {
                     </div>
                 ),
             },
-            {
-                Header: "Profit %",
-                accessor: "profitPercent",
-                Cell: ({ value }: { value: number }) => (
-                    <ProfitLoss value={value}>
-                        {percentToString(value)}
-                    </ProfitLoss>
-                ),
-            },
-            {
-                Header: "Profit $",
-                accessor: "profit",
-                Cell: ({ value }: { value: number }) => (
-                    <ProfitLoss value={value}>
-                        {priceToString(value)}
-                    </ProfitLoss>
-                ),
-            },
-            {
-                Header: "Holdings",
-                accessor: "holdings",
-                Cell: ({ value }) => Number(value.toFixed(8)),
-            },
-            {
-                Header: "Price",
-                accessor: "price",
-                Cell: ({ value }) => priceToString(value),
-            },
-            {
-                Header: "ATH %",
-                accessor: "athPercent",
-                Cell: ({ value }) => percentToString(value),
-            },
-            {
-                Header: "Mkt Value",
-                accessor: "mktValue",
-                Cell: ({ value }) => priceToString(value),
-            },
-            {
-                Header: "Cost",
-                accessor: "cost",
-                Cell: ({ value }) => priceToString(value),
-            },
-            {
-                Header: "Avg Cost",
-                accessor: "avgCost",
-                Cell: ({ value }) => priceToString(value),
-            },
-            {
-                Header: "Portfolio %",
-                accessor: "portfolioPercent",
-                Cell: ({ value }) => percentToString(value),
-            },
+            ...getColumns(weightings),
         ],
-        [percentToString, priceToString, showSymbolModal]
+        [getColumns, showSymbolModal, weightings]
     )
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
