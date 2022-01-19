@@ -5,14 +5,23 @@ import { TableData } from "./TableData"
 import { Coin } from "./Coin"
 import { SymbolMap } from "./SymbolMap"
 import { MarketData } from "./MarketData"
+import { Weightings } from "./Weightings"
+import { CustomColumns } from "./CustomColumns"
 
-export { Utils, PortfolioType, TransactionType, SymbolMap }
+export {
+    Utils,
+    PortfolioType,
+    TransactionType,
+    SymbolMap,
+    MarketData,
+    TableData,
+}
 export type {
     Portfolio,
     PortfolioData,
     Transaction,
     TransactionData,
-    TableData,
     Coin,
-    MarketData,
+    Weightings,
+    CustomColumns,
 }

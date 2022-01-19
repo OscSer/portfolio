@@ -8,10 +8,12 @@ import { Table } from "./Table"
 import { Utils } from "@domain"
 import { useBalance } from "@hooks"
 import { WeightingsModal } from "./WeightingsModal"
+import { ColumnsModal } from "./ColumnsModal"
 
 function Content(): JSX.Element {
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const [showWeightingsModal, setShowWeightingsModal] = useState(false)
+    const [showColumnsModal, setShowColumnsModal] = useState(false)
     const tableRef = useRef(Utils.getUniqueId())
     const [balance] = useBalance()
     const { priceToString } = Utils
@@ -38,6 +40,10 @@ function Content(): JSX.Element {
                             onClick={() => setShowWeightingsModal(true)}>
                             Set Weightings
                         </Dropdown.Item>
+                        <Dropdown.Item
+                            onClick={() => setShowColumnsModal(true)}>
+                            Customize Columns
+                        </Dropdown.Item>
                     </DropdownButton>
                 </div>
             </div>
@@ -53,6 +59,13 @@ function Content(): JSX.Element {
                 <WeightingsModal
                     show={showWeightingsModal}
                     setShow={setShowWeightingsModal}
+                    onHide={handleHide}
+                />
+            ) : null}
+            {showColumnsModal ? (
+                <ColumnsModal
+                    show={showColumnsModal}
+                    setShow={setShowColumnsModal}
                     onHide={handleHide}
                 />
             ) : null}

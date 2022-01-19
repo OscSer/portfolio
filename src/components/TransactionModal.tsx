@@ -16,6 +16,7 @@ import {
 import { DatePicker } from "./DatePicker"
 import { Typeahead } from "react-bootstrap-typeahead"
 import { InputGroup } from "react-bootstrap"
+import { isNumber } from "lodash"
 
 type Props = {
     show: boolean
@@ -74,11 +75,7 @@ function TransactionModal({
     }
 
     return (
-        <Modal
-            show={show}
-            onHide={handleHide}
-            size="sm"
-            className="transaction-modal">
+        <Modal show={show} onHide={handleHide} className="transaction-modal">
             <Modal.Header closeButton>
                 <Modal.Title>{isNew ? "Add" : "Edit"} Transaction</Modal.Title>
             </Modal.Header>
@@ -95,7 +92,7 @@ function TransactionModal({
                         }
                     />
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Type</InputGroup.Text>
                         <FormSelect
                             onChange={(event) =>
@@ -119,7 +116,7 @@ function TransactionModal({
                         </FormSelect>
                     </InputGroup>
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Symbol</InputGroup.Text>
                         <Typeahead
                             selected={data.id ? [coinMap[data.id]] : []}
@@ -146,7 +143,7 @@ function TransactionModal({
                         />
                     </InputGroup>
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Units</InputGroup.Text>
                         <Form.Control
                             type="number"
@@ -161,7 +158,7 @@ function TransactionModal({
                         />
                     </InputGroup>
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Price</InputGroup.Text>
                         <Form.Control
                             type="number"
@@ -176,7 +173,7 @@ function TransactionModal({
                         />
                     </InputGroup>
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Total</InputGroup.Text>
                         <Form.Control
                             type="number"
@@ -191,7 +188,6 @@ function TransactionModal({
                 {isNew ? (
                     <Form.Check
                         type="switch"
-                        id="save-switch"
                         label="Continue adding"
                         onChange={(e) =>
                             (continueAdding.current = e.target.value === "on")
@@ -205,8 +201,8 @@ function TransactionModal({
                     onClick={handleSave}
                     disabled={
                         Object.keys(data).length < 6 ||
-                        !data.price ||
-                        !data.units
+                        isNaN(data.price) ||
+                        isNaN(data.units)
                     }>
                     Save
                 </Button>

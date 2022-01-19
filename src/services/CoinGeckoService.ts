@@ -12,17 +12,29 @@ const getMarketData = (ids: string[]): Promise<Record<string, MarketData>> => {
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.error) {
-                            marketDataMap[id] = {
-                                price: NaN,
-                                ath: NaN,
-                                athPercent: NaN,
-                            }
+                            marketDataMap[id] = {} as MarketData
                         } else {
+                            const marketData = data.market_data
                             marketDataMap[id] = {
-                                price: data.market_data.current_price.usd,
-                                ath: data.market_data.ath.usd,
+                                price: marketData.current_price.usd,
+                                ath: marketData.ath.usd,
                                 athPercent:
-                                    data.market_data.ath_change_percentage.usd,
+                                    marketData.ath_change_percentage.usd,
+                                image: data.image.thumb,
+                                priceChange24h:
+                                    marketData.price_change_percentage_24h,
+                                priceChange7d:
+                                    marketData.price_change_percentage_7d,
+                                priceChange14d:
+                                    marketData.price_change_percentage_14d,
+                                priceChange30d:
+                                    marketData.price_change_percentage_30d,
+                                priceChange60d:
+                                    marketData.price_change_percentage_60d,
+                                priceChange200d:
+                                    marketData.price_change_percentage_200d,
+                                priceChange1y:
+                                    marketData.price_change_percentage_1y,
                             }
                         }
                         resolve(true)
@@ -32,7 +44,9 @@ const getMarketData = (ids: string[]): Promise<Record<string, MarketData>> => {
     })
 
     return new Promise((resolve) => {
-        Promise.all(promises).then(() => resolve(marketDataMap))
+        Promise.all(promises).then(() => {
+            resolve(marketDataMap)
+        })
     })
 }
 

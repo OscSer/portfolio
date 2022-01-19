@@ -24,10 +24,12 @@ body {
     input {
         flex: 1 1 auto;
     }
-    .input-group-text {
-        width: 80px;
+    &.custom {
+        .input-group-text {
+            width: 80px;
+        }
     }
     .react-datepicker-wrapper {
-        width: 70%;
+        width: 83%;
     }
 }

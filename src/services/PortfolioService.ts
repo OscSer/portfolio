@@ -1,4 +1,4 @@
-import { Portfolio, PortfolioData } from "@domain"
+import { CustomColumns, Portfolio, PortfolioData, Weightings } from "@domain"
 import { ref, child, get, update, push, set } from "firebase/database"
 import FirebaseService from "./FirebaseService"
 
@@ -39,7 +39,7 @@ const savePortfolio = (uid: string, portfolio: Portfolio): void => {
 const getWeightings = (
     uid: string,
     portfolio: Portfolio
-): Promise<Record<string, number>> => {
+): Promise<Weightings> => {
     const dbRef = ref(db)
     const weightingsPath = `users/${uid}/portfolios/${portfolio.ref}/weightings`
 
@@ -57,11 +57,39 @@ const getWeightings = (
 const saveWeightings = (
     uid: string,
     portfolio: Portfolio,
-    weightings: Record<string, number>
+    weightings: Weightings
 ): void => {
     const weightingsPath = `users/${uid}/portfolios/${portfolio.ref}/weightings`
     const weightingsRef = ref(db, weightingsPath)
     set(weightingsRef, weightings)
+}
+
+const getCustomColumns = (
+    uid: string,
+    portfolio: Portfolio
+): Promise<CustomColumns | undefined> => {
+    const _ref = ref(db)
+    const path = `users/${uid}/portfolios/${portfolio.ref}/customColumns`
+
+    return new Promise((resolve) => {
+        get(child(_ref, path)).then((snapshot) => {
+            if (snapshot.exists()) {
+                resolve(snapshot.val())
+            } else {
+                resolve(undefined)
+            }
+        })
+    })
+}
+
+const saveCustomColumns = (
+    uid: string,
+    portfolio: Portfolio,
+    customColumns: CustomColumns
+): void => {
+    const path = `users/${uid}/portfolios/${portfolio.ref}/customColumns`
+    const _ref = ref(db, path)
+    set(_ref, customColumns)
 }
 
 export default {
@@ -69,4 +97,6 @@ export default {
     savePortfolio,
     getWeightings,
     saveWeightings,
+    getCustomColumns,
+    saveCustomColumns,
 }

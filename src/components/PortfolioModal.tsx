@@ -52,7 +52,7 @@ function PortfolioModal({
 
             <Modal.Body>
                 <Form onSubmit={handleSave}>
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Type</InputGroup.Text>
                         <FormSelect
                             onChange={(event) =>
@@ -74,7 +74,7 @@ function PortfolioModal({
                         </FormSelect>
                     </InputGroup>
 
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Name</InputGroup.Text>
                         <Form.Control
                             type="text"

@@ -13,18 +13,23 @@ import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
 
 function Table(): JSX.Element {
+    const {
+        buildTableDataMap,
+        buildTableData,
+        addWeightingProps,
+        getColumns,
+        defaultCustomColumns,
+    } = Utils
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useTableData()
     const [showModal, setShowModal] = useState(false)
     const [symbol, setSymbol] = useState("")
-    const [weightings, setWeightings] = useState<Record<string, number>>({})
+    const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
     const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
     const { getMarketData } = CoinGeckoService
-    const { getWeightings } = PortfolioService
-    const { buildTableDataMap, buildTableData, addWeightingProps, getColumns } =
-        Utils
+    const { getWeightings, getCustomColumns } = PortfolioService
 
     const getTransactions = useCallback(() => {
         if (portfolio) {
@@ -46,24 +51,30 @@ function Table(): JSX.Element {
                                     )
                                 )
                                 setBalance(balance)
-                                setWeightings(weightings)
                             }
                         )
                     }
                 )
+            })
+
+            getCustomColumns(user.uid, portfolio).then((_customColumns) => {
+                if (_customColumns) {
+                    setCustomColumns(_customColumns)
+                }
             })
         }
     }, [
         portfolio,
         getAllTransactions,
         user.uid,
+        getCustomColumns,
         buildTableDataMap,
         getMarketData,
         buildTableData,
         getWeightings,
-        setBalance,
         setData,
         addWeightingProps,
+        setBalance,
     ])
 
     useEffect(() => {
@@ -93,9 +104,9 @@ function Table(): JSX.Element {
                     </div>
                 ),
             },
-            ...getColumns(weightings),
+            ...getColumns(customColumns),
         ],
-        [getColumns, showSymbolModal, weightings]
+        [customColumns, getColumns, showSymbolModal]
     )
 
     const initialState: Partial<TableState<TableData>> = {

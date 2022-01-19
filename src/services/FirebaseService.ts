@@ -1,5 +1,9 @@
 import { initializeApp } from "firebase/app"
-import { getAuth, GoogleAuthProvider } from "firebase/auth"
+import {
+    getAuth,
+    GoogleAuthProvider,
+    indexedDBLocalPersistence,
+} from "firebase/auth"
 import { getDatabase } from "firebase/database"
 
 const firebaseConfig = {
@@ -14,6 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const provider = new GoogleAuthProvider()
 const auth = getAuth()
+auth.setPersistence(indexedDBLocalPersistence)
 const db = getDatabase(app)
 
 export default { provider, auth, db }

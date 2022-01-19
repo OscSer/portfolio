@@ -21,7 +21,7 @@ function DatePicker({ onChange, selected }: Props): JSX.Element {
 
     return (
         <>
-            <InputGroup>
+            <InputGroup className="custom">
                 <InputGroup.Text>Date</InputGroup.Text>
                 <ReactDatePicker
                     className="form-control"

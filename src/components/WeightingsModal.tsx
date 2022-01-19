@@ -6,6 +6,7 @@ import { usePortfolio, useTableData, useUser } from "@hooks"
 import { InputGroup } from "react-bootstrap"
 import { PortfolioService } from "@services"
 import { isNumber } from "lodash"
+import { Weightings } from "@domain"
 
 type Props = {
     show: boolean
@@ -14,7 +15,7 @@ type Props = {
 }
 
 function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
-    const [weightings, setWeightings] = useState<Record<string, number>>({})
+    const [weightings, setWeightings] = useState<Weightings>({})
     const [data] = useTableData()
     const [user] = useUser()
     const [portfolio] = usePortfolio()
@@ -24,7 +25,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     useEffect(() => {
         if (portfolio) {
             getWeightings(user.uid, portfolio).then((_weightings) => {
-                const newWeightings: Record<string, number> = {}
+                const newWeightings: Weightings = {}
                 data.forEach((item) => {
                     const value = _weightings[item.id]
                     if (value) {
@@ -66,7 +67,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
             <Modal.Body>
                 <Form>
                     {data.map((item) => (
-                        <InputGroup key={item.id}>
+                        <InputGroup key={item.id} className="custom">
                             <InputGroup.Text>
                                 {item.symbol.toUpperCase()}
                             </InputGroup.Text>
@@ -85,7 +86,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
                             </InputGroup.Text>
                         </InputGroup>
                     ))}
-                    <InputGroup>
+                    <InputGroup className="custom">
                         <InputGroup.Text>Total</InputGroup.Text>
                         <Form.Control
                             disabled

@@ -1,8 +1,11 @@
 import { ProfitLoss } from "components/ProfitLoss"
+import { isEmpty } from "lodash"
 import { Column } from "react-table"
+import { CustomColumns } from "./CustomColumns"
 import { MarketData } from "./MarketData"
 import { TableData } from "./TableData"
 import { Transaction } from "./Transaction"
+import { Weightings } from "./Weightings"
 
 const getUniqueId = (length = 20): string => {
     const chars =
@@ -64,7 +67,7 @@ const buildTableDataMap = (
                     symbol: data.symbol,
                     holdings: 0,
                     cost: 0,
-                }
+                } as TableData
             }
 
             if (unitsSoldCounter === 0 || unitsSoldCounter < data.units) {
@@ -95,13 +98,11 @@ const buildTableData = (
         const profit = mktValue - coin.cost
         tableData.push({
             ...coin,
+            ...market,
             mktValue,
             profit,
             profitPercent: 100 * (profit / coin.cost),
-            price: market.price,
-            ath: market.ath,
-            athPercent: market.athPercent,
-            avgCost: coin.cost / coin.holdings,
+            costAvg: coin.cost / coin.holdings,
         })
         balance += mktValue
     })
@@ -110,30 +111,47 @@ const buildTableData = (
 
 const addWeightingProps = (
     tableData: TableData[],
-    weightings: Record<string, number>,
+    weightings: Weightings,
     balance: number
 ) => {
     return tableData.map((data): TableData => {
         const currentWeighting = 100 * (Number(data.mktValue) / balance)
         const desiredWeighting = weightings[data.id]
-        let weightingDiff = undefined
+        let weightingDiff = 0
         if (currentWeighting && desiredWeighting) {
             weightingDiff =
                 balance * ((desiredWeighting - currentWeighting) / 100)
         }
         return {
             ...data,
-            currentWeighting,
-            desiredWeighting,
-            weightingDiff,
+            weightingCurrent: currentWeighting,
+            weightingDesired: desiredWeighting,
+            weightingDiff: weightingDiff,
         }
     })
 }
 
-const getColumns = (
-    weightings: Record<string, number>
-): Column<TableData>[] => {
-    const base: Column<TableData>[] = [
+const defaultCustomColumns = (): CustomColumns => {
+    const defaultColumns: Array<keyof TableData> = [
+        "symbol",
+        "profitPercent",
+        "profit",
+        "holdings",
+        "price",
+        "mktValue",
+        "cost",
+        "costAvg",
+    ]
+    const customColumns: Record<string, boolean> = {}
+    const tableData = new TableData()
+    Object.keys(tableData).forEach((key) => {
+        customColumns[key] = defaultColumns.includes(key as keyof TableData)
+    })
+    return customColumns as CustomColumns
+}
+
+const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
+    const columns: Column<TableData>[] = [
         {
             Header: "Profit %",
             accessor: "profitPercent",
@@ -169,6 +187,48 @@ const getColumns = (
             Cell: ({ value }) => percentToString(value),
         },
         {
+            Header: "24h %",
+            accessor: "priceChange24h",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "7d %",
+            accessor: "priceChange7d",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "14d %",
+            accessor: "priceChange14d",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "30d %",
+            accessor: "priceChange30d",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "60d %",
+            accessor: "priceChange60d",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "200d %",
+            accessor: "priceChange200d",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
+            Header: "1y %",
+            accessor: "priceChange1y",
+            sortDescFirst: true,
+            Cell: ({ value }) => percentToString(value),
+        },
+        {
             Header: "Mkt Value",
             accessor: "mktValue",
             sortDescFirst: true,
@@ -182,22 +242,19 @@ const getColumns = (
         },
         {
             Header: "Avg Cost",
-            accessor: "avgCost",
+            accessor: "costAvg",
             sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Current %",
-            accessor: "currentWeighting",
+            accessor: "weightingCurrent",
             sortDescFirst: true,
             Cell: ({ value }) => percentToString(value),
         },
-    ]
-
-    const weightingsColumns: Column<TableData>[] = [
         {
             Header: "Desired %",
-            accessor: "desiredWeighting",
+            accessor: "weightingDesired",
             sortDescFirst: true,
             Cell: ({ value }) => percentToString(value),
         },
@@ -206,16 +263,18 @@ const getColumns = (
             accessor: "weightingDiff",
             sortDescFirst: true,
             Cell: ({ value }: { value: number }) => (
-                <ProfitLoss value={value}>{priceToString(value)}</ProfitLoss>
+                <ProfitLoss value={value}>
+                    {value ? priceToString(value) : ""}
+                </ProfitLoss>
             ),
         },
     ]
 
-    if (Object.keys(weightings).length) {
-        return [...base, ...weightingsColumns]
-    }
-
-    return base
+    return columns.filter((column) =>
+        column.accessor
+            ? customColumns[String(column.accessor) as keyof TableData]
+            : true
+    )
 }
 
 export default {
@@ -226,4 +285,5 @@ export default {
     buildTableData,
     addWeightingProps,
     getColumns,
+    defaultCustomColumns,
 }
