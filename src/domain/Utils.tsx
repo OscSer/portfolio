@@ -137,6 +137,7 @@ const getColumns = (
         {
             Header: "Profit %",
             accessor: "profitPercent",
+            sortDescFirst: true,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -144,6 +145,7 @@ const getColumns = (
         {
             Header: "Profit $",
             accessor: "profit",
+            sortDescFirst: true,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{priceToString(value)}</ProfitLoss>
             ),
@@ -151,36 +153,43 @@ const getColumns = (
         {
             Header: "Holdings",
             accessor: "holdings",
+            sortDescFirst: true,
             Cell: ({ value }) => Number(value.toFixed(8)),
         },
         {
             Header: "Price",
             accessor: "price",
+            sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "ATH %",
             accessor: "athPercent",
+            sortDescFirst: true,
             Cell: ({ value }) => percentToString(value),
         },
         {
             Header: "Mkt Value",
             accessor: "mktValue",
+            sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Cost",
             accessor: "cost",
+            sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Avg Cost",
             accessor: "avgCost",
+            sortDescFirst: true,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Current %",
             accessor: "currentWeighting",
+            sortDescFirst: true,
             Cell: ({ value }) => percentToString(value),
         },
     ]
@@ -189,11 +198,13 @@ const getColumns = (
         {
             Header: "Desired %",
             accessor: "desiredWeighting",
+            sortDescFirst: true,
             Cell: ({ value }) => percentToString(value),
         },
         {
             Header: "Weight Diff",
             accessor: "weightingDiff",
+            sortDescFirst: true,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{priceToString(value)}</ProfitLoss>
             ),

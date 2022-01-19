@@ -1,6 +1,6 @@
 import "./Table.scss"
 import { TableData, Utils } from "@domain"
-import { Column, useTable, useSortBy } from "react-table"
+import { Column, useTable, useSortBy, TableState } from "react-table"
 import React, { useCallback, useEffect, useState } from "react"
 import {
     CoinGeckoService,
@@ -9,6 +9,8 @@ import {
 } from "@services"
 import { useBalance, usePortfolio, useTableData, useUser } from "@hooks"
 import { SymbolModal } from "./SymbolModal"
+import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
+import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
 
 function Table(): JSX.Element {
     const [user] = useUser()
@@ -96,8 +98,12 @@ function Table(): JSX.Element {
         [getColumns, showSymbolModal, weightings]
     )
 
+    const initialState: Partial<TableState<TableData>> = {
+        sortBy: [{ id: "currentWeighting", desc: true }],
+    }
+
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-        useTable({ columns, data }, useSortBy)
+        useTable({ columns, data, initialState }, useSortBy)
 
     return (
         <>
@@ -112,6 +118,21 @@ function Table(): JSX.Element {
                                     )}
                                     key={index}>
                                     {column.render("Header")}
+                                    <span>
+                                        {column.isSorted ? (
+                                            column.isSortedDesc ? (
+                                                <ArrowDownIcon
+                                                    style={{ color: "#2D5ED7" }}
+                                                />
+                                            ) : (
+                                                <ArrowUpIcon
+                                                    style={{ color: "#2D5ED7" }}
+                                                />
+                                            )
+                                        ) : (
+                                            ""
+                                        )}
+                                    </span>
                                 </th>
                             ))}
                         </tr>
