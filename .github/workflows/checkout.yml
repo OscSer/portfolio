@@ -1,0 +1,21 @@
+name: Checkout
+on:
+    pull_request:
+        branches:
+            - main
+jobs:
+    checkout:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+            - name: Move to workspace
+              run: cd ${{ github.workspace }}
+            - name: Install
+              run: yarn install
+            - name: Test
+              run: yarn test
+            - name: ESLint
+              run: yarn eslint
+            - name: TypeScript
+              run: yarn tsc

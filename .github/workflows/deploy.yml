@@ -1,10 +1,10 @@
-name: Main
+name: Deploy
 on:
     push:
         branches:
             - main
 jobs:
-    checkout:
+    deploy:
         runs-on: ubuntu-latest
         steps:
             - name: Check out repository
@@ -13,9 +13,5 @@ jobs:
               run: cd ${{ github.workspace }}
             - name: Install
               run: yarn install
-            - name: Test
-              run: yarn test
-            - name: ESLint
-              run: yarn eslint
-            - name: TypeScript
-              run: yarn tsc
+            - name: Deploy
+              run: yarn deploy
