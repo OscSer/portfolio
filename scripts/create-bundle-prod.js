@@ -11,7 +11,6 @@ const { base } = require("./create-bundle-base")
             ...base.define,
         },
         minify: true,
-        sourcemap: true,
         metafile: true,
     })
 
