@@ -2,20 +2,21 @@ import "./App.scss"
 import { FirebaseService } from "@services"
 import { signInWithRedirect, onAuthStateChanged } from "firebase/auth"
 import { useEffectOnce } from "react-use"
-import { useLoading, useUser } from "@hooks"
+import { useLoading, usePortfolio, useUser } from "@hooks"
 import { Header } from "./Header"
 import { Content } from "./Content"
 import { Spinner } from "react-bootstrap"
 
 function App(): JSX.Element {
     const [user, setUser] = useUser()
+    const [portfolio] = usePortfolio()
     const [loading] = useLoading()
     const { auth, provider } = FirebaseService
 
     useEffectOnce(() => {
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUser(user)
+        onAuthStateChanged(auth, (_user) => {
+            if (_user) {
+                setUser(_user)
             } else {
                 signInWithRedirect(auth, provider)
             }
@@ -33,7 +34,7 @@ function App(): JSX.Element {
                     }}>
                     <div>
                         <Header />
-                        <Content />
+                        {portfolio && <Content />}
                     </div>
                 </div>
             ) : null}

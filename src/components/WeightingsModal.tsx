@@ -23,18 +23,16 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     const { getWeightings, saveWeightings } = PortfolioService
 
     useEffect(() => {
-        if (portfolio) {
-            getWeightings(user.uid, portfolio).then((_weightings) => {
-                const newWeightings: Weightings = {}
-                data.forEach((item) => {
-                    const value = _weightings[item.id]
-                    if (value) {
-                        newWeightings[item.id] = value
-                    }
-                })
-                setWeightings(newWeightings)
+        getWeightings(user.uid, portfolio).then((_weightings) => {
+            const newWeightings: Weightings = {}
+            data.forEach((item) => {
+                const value = _weightings[item.id]
+                if (value) {
+                    newWeightings[item.id] = value
+                }
             })
-        }
+            setWeightings(newWeightings)
+        })
     }, [getWeightings, portfolio, user.uid, show, data])
 
     useEffect(() => {
@@ -47,10 +45,8 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     }, [weightings])
 
     const handleSave = () => {
-        if (portfolio) {
-            saveWeightings(user.uid, portfolio, weightings)
-            handleHide(true)
-        }
+        saveWeightings(user.uid, portfolio, weightings)
+        handleHide(true)
     }
 
     const handleHide = (shouldUpdate: boolean) => {

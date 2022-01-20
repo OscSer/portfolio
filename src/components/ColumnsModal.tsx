@@ -29,31 +29,27 @@ function ColumnsModal({ show, setShow, onHide }: Props): JSX.Element {
     const { getCustomColumns, saveCustomColumns } = PortfolioService
 
     useEffect(() => {
-        if (portfolio) {
-            getCustomColumns(user.uid, portfolio).then((_customColumns) => {
-                if (_customColumns) {
-                    const mergeCustomColumns: Record<string, boolean> = {}
-                    Object.keys(defaultColumns.current).forEach((key) => {
-                        const asKey = key as keyof TableData
-                        if (!unavailableColumns.includes(asKey)) {
-                            const customValue = _customColumns[asKey]
-                            mergeCustomColumns[key] =
-                                customValue !== undefined
-                                    ? _customColumns[asKey]
-                                    : defaultColumns.current[asKey]
-                        }
-                    })
-                    setCustomColumns(mergeCustomColumns as CustomColumns)
-                }
-            })
-        }
+        getCustomColumns(user.uid, portfolio).then((_customColumns) => {
+            if (_customColumns) {
+                const mergeCustomColumns: Record<string, boolean> = {}
+                Object.keys(defaultColumns.current).forEach((key) => {
+                    const asKey = key as keyof TableData
+                    if (!unavailableColumns.includes(asKey)) {
+                        const customValue = _customColumns[asKey]
+                        mergeCustomColumns[key] =
+                            customValue !== undefined
+                                ? _customColumns[asKey]
+                                : defaultColumns.current[asKey]
+                    }
+                })
+                setCustomColumns(mergeCustomColumns as CustomColumns)
+            }
+        })
     }, [portfolio, user.uid, show, getCustomColumns, defaultColumns])
 
     const handleSave = () => {
-        if (portfolio) {
-            saveCustomColumns(user.uid, portfolio, customColumns)
-            handleHide(true)
-        }
+        saveCustomColumns(user.uid, portfolio, customColumns)
+        handleHide(true)
     }
 
     const handleHide = (shouldUpdate: boolean) => {

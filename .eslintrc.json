@@ -54,6 +54,7 @@
         "no-promise-executor-return": "error",
         "no-loss-of-precision": "error",
         "no-eq-null": "error",
-        "@typescript-eslint/no-unused-vars": ["warn"]        
+        "@typescript-eslint/no-unused-vars": ["warn"],
+        "no-shadow": ["warn"]
     }
 }
