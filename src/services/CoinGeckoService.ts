@@ -18,9 +18,7 @@ const getMarketData = (ids: string[]): Promise<Record<string, MarketData>> => {
                             marketDataMap[id] = {
                                 price: marketData.current_price.usd,
                                 ath: marketData.ath.usd,
-                                athPercent:
-                                    marketData.ath_change_percentage.usd,
-                                image: data.image.thumb,
+                                athChange: marketData.ath_change_percentage.usd,
                                 priceChange24h:
                                     marketData.price_change_percentage_24h,
                                 priceChange7d:

@@ -8,8 +8,7 @@ export class MarketData {
     priceChange200d: number
     priceChange1y: number
     ath: number
-    athPercent: number
-    image: string
+    athChange: number
 
     constructor() {
         this.price = 0
@@ -21,7 +20,6 @@ export class MarketData {
         this.priceChange200d = 0
         this.priceChange1y = 0
         this.ath = 0
-        this.athPercent = 0
-        this.image = ""
+        this.athChange = 0
     }
 }

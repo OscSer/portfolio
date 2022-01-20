@@ -16,6 +16,8 @@ type Props = {
     onHide: () => void
 }
 
+const unavailableColumns: Array<keyof TableData> = ["id", "symbol"]
+
 function ColumnsModal({ show, setShow, onHide }: Props): JSX.Element {
     const { defaultCustomColumns } = Utils
     const defaultColumns = useRef(defaultCustomColumns())
@@ -33,9 +35,13 @@ function ColumnsModal({ show, setShow, onHide }: Props): JSX.Element {
                     const mergeCustomColumns: Record<string, boolean> = {}
                     Object.keys(defaultColumns.current).forEach((key) => {
                         const asKey = key as keyof TableData
-                        mergeCustomColumns[key] =
-                            _customColumns[asKey] ||
-                            defaultColumns.current[asKey]
+                        if (!unavailableColumns.includes(asKey)) {
+                            const customValue = _customColumns[asKey]
+                            mergeCustomColumns[key] =
+                                customValue !== undefined
+                                    ? _customColumns[asKey]
+                                    : defaultColumns.current[asKey]
+                        }
                     })
                     setCustomColumns(mergeCustomColumns as CustomColumns)
                 }

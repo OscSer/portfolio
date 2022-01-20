@@ -1,6 +1,5 @@
 import { ProfitLoss } from "components/ProfitLoss"
-import { isEmpty } from "lodash"
-import { Column } from "react-table"
+import { Column, Row, SortByFn } from "react-table"
 import { CustomColumns } from "./CustomColumns"
 import { MarketData } from "./MarketData"
 import { TableData } from "./TableData"
@@ -115,18 +114,18 @@ const addWeightingProps = (
     balance: number
 ) => {
     return tableData.map((data): TableData => {
-        const currentWeighting = 100 * (Number(data.mktValue) / balance)
-        const desiredWeighting = weightings[data.id]
+        const weightingCurrent = 100 * (Number(data.mktValue) / balance)
+        const weightingDesired = weightings[data.id] || 0
         let weightingDiff = 0
-        if (currentWeighting && desiredWeighting) {
+        if (weightingCurrent && weightingDesired) {
             weightingDiff =
-                balance * ((desiredWeighting - currentWeighting) / 100)
+                balance * ((weightingDesired - weightingCurrent) / 100)
         }
         return {
             ...data,
-            weightingCurrent: currentWeighting,
-            weightingDesired: desiredWeighting,
-            weightingDiff: weightingDiff,
+            weightingCurrent,
+            weightingDesired,
+            weightingDiff,
         }
     })
 }
@@ -151,11 +150,25 @@ const defaultCustomColumns = (): CustomColumns => {
 }
 
 const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
+    const sortByfn: SortByFn<TableData> = (
+        rowA: Row<TableData>,
+        rowB: Row<TableData>,
+        columnId: string
+    ) => {
+        const a: TableData = rowA.original
+        const b: TableData = rowB.original
+        const id = columnId as keyof TableData
+        if (a[id] > b[id]) return 1
+        if (b[id] > a[id]) return -1
+        return 0
+    }
+
     const columns: Column<TableData>[] = [
         {
             Header: "Profit %",
             accessor: "profitPercent",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -164,6 +177,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "Profit",
             accessor: "profit",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{priceToString(value)}</ProfitLoss>
             ),
@@ -172,18 +186,21 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "Price",
             accessor: "price",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "ATH",
             accessor: "ath",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => priceToString(value),
         },
         {
             Header: "ATH %",
-            accessor: "athPercent",
+            accessor: "athChange",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -192,6 +209,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "24h %",
             accessor: "priceChange24h",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -200,6 +218,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "7d %",
             accessor: "priceChange7d",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -208,6 +227,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "14d %",
             accessor: "priceChange14d",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -216,6 +236,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "30d %",
             accessor: "priceChange30d",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -224,6 +245,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "60d %",
             accessor: "priceChange60d",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -232,6 +254,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "200d %",
             accessor: "priceChange200d",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -240,6 +263,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "1y %",
             accessor: "priceChange1y",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>{percentToString(value)}</ProfitLoss>
             ),
@@ -248,42 +272,49 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             Header: "Holdings",
             accessor: "holdings",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => Number(value.toFixed(8)),
         },
         {
             Header: "Mkt Value",
             accessor: "mktValue",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Cost",
             accessor: "cost",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Avg Cost",
             accessor: "costAvg",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => priceToString(value),
         },
         {
             Header: "Current %",
             accessor: "weightingCurrent",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }) => percentToString(value),
         },
         {
             Header: "Desired %",
             accessor: "weightingDesired",
             sortDescFirst: true,
-            Cell: ({ value }) => percentToString(value),
+            sortType: sortByfn,
+            Cell: ({ value }) => (value ? percentToString(value) : ""),
         },
         {
             Header: "Weight Diff",
             accessor: "weightingDiff",
             sortDescFirst: true,
+            sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
                 <ProfitLoss value={value}>
                     {value ? priceToString(value) : ""}
