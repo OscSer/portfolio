@@ -16,6 +16,10 @@ jobs:
               run: cd ${{ github.workspace }}
             - name: Install
               run: yarn install
+            - name: Create env file
+              run: |
+                  touch .env
+                  echo ${{secrets.PORTFOLIO_ENV}} >> .env
             - name: Deploy
               run: |
                   git config user.name Oscar Serna
