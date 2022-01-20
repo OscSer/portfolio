@@ -18,8 +18,9 @@ jobs:
               run: yarn install
             - name: Create env file
               run: |
-                  touch .env
-                  echo ${{secrets.PORTFOLIO_ENV}} >> .env
+                  cat << EOF > .env
+                  ${{secrets.PORTFOLIO_ENV}}
+                  EOF
             - name: Deploy
               run: |
                   git config user.name Oscar Serna
