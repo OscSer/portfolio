@@ -11,7 +11,7 @@ import { Weightings } from "@domain"
 type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
-    onHide: () => void
+    onHide: (shouldUpdate: boolean) => void
 }
 
 function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
@@ -49,17 +49,17 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     const handleSave = () => {
         if (portfolio) {
             saveWeightings(user.uid, portfolio, weightings)
-            handleHide()
+            handleHide(true)
         }
     }
 
-    const handleHide = () => {
-        onHide()
+    const handleHide = (shouldUpdate: boolean) => {
+        onHide(shouldUpdate)
         setShow(false)
     }
 
     return (
-        <Modal show={show} onHide={handleHide} size="sm">
+        <Modal show={show} onHide={() => handleHide(false)} size="sm">
             <Modal.Header closeButton>
                 <Modal.Title>Weightings</Modal.Title>
             </Modal.Header>

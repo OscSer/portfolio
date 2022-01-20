@@ -22,27 +22,30 @@ function App(): JSX.Element {
         })
     })
 
-    return user ? (
+    return (
         <>
-            <div
-                className="app"
-                data-testid="app"
-                style={{ contentVisibility: loading ? "hidden" : "auto" }}>
-                <div>
-                    <Header />
-                    <Content />
+            {user ? (
+                <div
+                    className="app"
+                    data-testid="app"
+                    style={{
+                        display: loading ? "none" : "unset",
+                    }}>
+                    <div>
+                        <Header />
+                        <Content />
+                    </div>
                 </div>
-            </div>
-            {loading ? (
-                <Spinner
-                    className="custom-spinner"
-                    variant="primary"
-                    animation="border"
-                />
             ) : null}
+            <Spinner
+                className="custom-spinner"
+                variant="primary"
+                animation="border"
+                style={{
+                    display: loading ? "unset" : "none",
+                }}
+            />
         </>
-    ) : (
-        <></>
     )
 }
 

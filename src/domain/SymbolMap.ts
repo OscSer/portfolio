@@ -16,7 +16,9 @@ export class SymbolMap {
             fetch("https://api.coingecko.com/api/v3/coins/list")
                 .then((response) => response.json())
                 .then((data) => {
-                    SymbolMap.instance.coinList = sortBy(data, ["symbol"])
+                    SymbolMap.instance.coinList = sortBy(data, [
+                        "symbol",
+                    ]).filter((coin) => coin.symbol && coin.id)
                     data.forEach((coin: Coin) => {
                         SymbolMap.instance.coinMap[coin.id] = coin
                     })

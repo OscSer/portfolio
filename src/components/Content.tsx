@@ -18,8 +18,10 @@ function Content(): JSX.Element {
     const [balance] = useBalance()
     const { priceToString } = Utils
 
-    const handleHide = useCallback(() => {
-        tableRef.current = Utils.getUniqueId()
+    const handleHide = useCallback((shouldUpdate: boolean) => {
+        if (shouldUpdate) {
+            tableRef.current = Utils.getUniqueId()
+        }
     }, [])
 
     return (

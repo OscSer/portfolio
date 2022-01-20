@@ -5,6 +5,7 @@ import {
     SetStateAction,
     useCallback,
     useEffect,
+    useRef,
     useState,
 } from "react"
 import { TransactionService } from "@services"
@@ -20,7 +21,7 @@ import { sortBy } from "lodash"
 type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
-    onHide: () => void
+    onHide: (shouldUpdate: boolean) => void
     symbol: string
 }
 
@@ -30,11 +31,12 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     const [transaction, setTransaction] = useState<Transaction>()
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [showTransactionModal, setShowTransactionModal] = useState(false)
+    const shouldUpdate = useRef(false)
     const { getTransactionsBySymbol, deleteTransaction } = TransactionService
     const { priceToString } = Utils
 
     const handleHide = useCallback(() => {
-        onHide()
+        onHide(shouldUpdate.current)
         setShow(false)
         setTransactions([])
     }, [onHide, setShow])
@@ -68,7 +70,15 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     const handleDeleteTransaction = (transaction: Transaction) => {
         if (portfolio) {
             deleteTransaction(user.uid, portfolio, transaction)
+            shouldUpdate.current = true
             getTransactions()
+        }
+    }
+
+    const handleTransactionModalHide = (_shouldUpdate: boolean) => {
+        if (_shouldUpdate) {
+            getTransactions()
+            shouldUpdate.current = true
         }
     }
 
@@ -131,12 +141,14 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                     ))}
                 </ListGroup>
             </Modal.Body>
-            <TransactionModal
-                show={showTransactionModal}
-                setShow={setShowTransactionModal}
-                onHide={() => getTransactions()}
-                transaction={transaction}
-            />
+            {showTransactionModal ? (
+                <TransactionModal
+                    show={showTransactionModal}
+                    setShow={setShowTransactionModal}
+                    onHide={handleTransactionModalHide}
+                    transaction={transaction}
+                />
+            ) : null}
         </Modal>
     )
 }

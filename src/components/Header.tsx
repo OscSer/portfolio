@@ -59,8 +59,8 @@ function Header(): JSX.Element {
         setPortfolio(portfolio)
     }
 
-    const handleModalHide = () => {
-        getPortfolios()
+    const handleModalHide = (shouldUpdate: boolean) => {
+        shouldUpdate && getPortfolios()
     }
 
     const handlePortfolioEdit = () => {
@@ -90,12 +90,14 @@ function Header(): JSX.Element {
                 <div className="header__username">{user.displayName}</div>
                 <ExitToAppIcon />
             </div>
-            <PortfolioModal
-                show={showModal}
-                setShow={setShowModal}
-                portfolio={portfolio}
-                onHide={handleModalHide}
-            />
+            {showModal ? (
+                <PortfolioModal
+                    show={showModal}
+                    setShow={setShowModal}
+                    portfolio={portfolio}
+                    onHide={handleModalHide}
+                />
+            ) : null}
         </div>
     )
 }

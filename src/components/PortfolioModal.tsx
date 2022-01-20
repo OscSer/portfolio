@@ -11,7 +11,7 @@ import { InputGroup } from "react-bootstrap"
 type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
-    onHide: () => void
+    onHide: (shouldUpdate: boolean) => void
     portfolio?: Portfolio
 }
 
@@ -28,30 +28,26 @@ function PortfolioModal({
         ? ({ type: PortfolioType.Cryptocurrencies } as PortfolioData)
         : portfolio.data
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleSave = (event: any) => {
-        event?.preventDefault()
-        if (Object.keys(data).length >= 2) {
-            const ref = isNew ? undefined : portfolio.ref
-            const _portfolio = { ref, data } as Portfolio
-            savePortfolio(user.uid, _portfolio)
-            handleHide()
-        }
+    const handleSave = () => {
+        const ref = isNew ? undefined : portfolio.ref
+        const _portfolio = { ref, data } as Portfolio
+        savePortfolio(user.uid, _portfolio)
+        handleHide(true)
     }
 
-    const handleHide = () => {
-        onHide()
+    const handleHide = (shouldUpdate: boolean) => {
+        onHide(shouldUpdate)
         setShow(false)
     }
 
     return (
-        <Modal show={show} onHide={handleHide}>
+        <Modal show={show} onHide={() => handleHide(false)}>
             <Modal.Header closeButton>
                 <Modal.Title>{isNew ? "Create" : "Edit"} Portfolio</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
-                <Form onSubmit={handleSave}>
+                <Form>
                     <InputGroup className="custom">
                         <InputGroup.Text>Type</InputGroup.Text>
                         <FormSelect
@@ -88,7 +84,10 @@ function PortfolioModal({
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="primary" onClick={handleSave}>
+                <Button
+                    variant="primary"
+                    onClick={handleSave}
+                    disabled={Object.keys(data).length < 2}>
                     Save
                 </Button>
             </Modal.Footer>

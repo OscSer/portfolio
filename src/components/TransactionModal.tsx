@@ -16,12 +16,11 @@ import {
 import { DatePicker } from "./DatePicker"
 import { Typeahead } from "react-bootstrap-typeahead"
 import { InputGroup } from "react-bootstrap"
-import { isNumber } from "lodash"
 
 type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
-    onHide: () => void
+    onHide: (shouldUpdate: boolean) => void
     transaction?: Transaction
 }
 
@@ -42,6 +41,7 @@ function TransactionModal({
     const [data, setData] = useState<TransactionData>(initialData.current)
     const coinList = SymbolMap.getInstance().coinList
     const coinMap = SymbolMap.getInstance().coinMap
+    const shouldUpdate = useRef(false)
 
     useEffect(() => {
         if (isNew) {
@@ -51,13 +51,12 @@ function TransactionModal({
         }
     }, [initialData, isNew, transaction, show])
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handleSave = (event: any) => {
-        event?.preventDefault()
-        if (Object.keys(data).length === 6 && portfolio) {
+    const handleSave = () => {
+        if (portfolio) {
             const ref = isNew ? undefined : transaction.ref
             const _transaction: Transaction = { ref, data }
             saveTransaction(user.uid, portfolio, _transaction)
+            shouldUpdate.current = true
             if (continueAdding.current) {
                 setData({
                     ...initialData.current,
@@ -70,7 +69,7 @@ function TransactionModal({
     }
 
     const handleHide = () => {
-        onHide()
+        onHide(shouldUpdate.current)
         setShow(false)
     }
 
@@ -81,7 +80,7 @@ function TransactionModal({
             </Modal.Header>
 
             <Modal.Body className="body">
-                <Form onSubmit={handleSave}>
+                <Form>
                     <DatePicker
                         selected={data.date ? new Date(data.date) : new Date()}
                         onChange={(date) =>

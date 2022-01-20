@@ -13,7 +13,7 @@ import { useRef } from "react"
 type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
-    onHide: () => void
+    onHide: (shouldUpdate: boolean) => void
 }
 
 const unavailableColumns: Array<keyof TableData> = ["id", "symbol"]
@@ -52,17 +52,20 @@ function ColumnsModal({ show, setShow, onHide }: Props): JSX.Element {
     const handleSave = () => {
         if (portfolio) {
             saveCustomColumns(user.uid, portfolio, customColumns)
-            handleHide()
+            handleHide(true)
         }
     }
 
-    const handleHide = () => {
-        onHide()
+    const handleHide = (shouldUpdate: boolean) => {
+        onHide(shouldUpdate)
         setShow(false)
     }
 
     return (
-        <Modal show={show} onHide={handleHide} className="columns-modal">
+        <Modal
+            show={show}
+            onHide={() => handleHide(false)}
+            className="columns-modal">
             <Modal.Header closeButton>
                 <Modal.Title>Columns</Modal.Title>
             </Modal.Header>

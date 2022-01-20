@@ -1,7 +1,7 @@
 import "./Table.scss"
 import { TableData, Utils } from "@domain"
 import { Column, useTable, useSortBy, TableState } from "react-table"
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import {
     CoinGeckoService,
     PortfolioService,
@@ -119,10 +119,15 @@ function Table(): JSX.Element {
         setShowModal(true)
     }, [])
 
-    const handleHide = useCallback(() => {
-        setSymbol("")
-        getTransactions()
-    }, [getTransactions])
+    const handleHide = useCallback(
+        (shouldUpdate: boolean) => {
+            if (shouldUpdate) {
+                setSymbol("")
+                getTransactions()
+            }
+        },
+        [getTransactions]
+    )
 
     const columns = React.useMemo<Column<TableData>[]>(
         () => [
@@ -142,12 +147,36 @@ function Table(): JSX.Element {
         [customColumns, getColumns, showSymbolModal]
     )
 
-    const initialState: Partial<TableState<TableData>> = {
-        sortBy: [{ id: "mktValue", desc: true }],
-    }
+    const initialState: Partial<TableState<TableData>> = useMemo(() => {
+        const storedItem = window.localStorage.getItem("sortBy")
+        const lastSortBy = storedItem ? JSON.parse(storedItem) : undefined
+        const defaultSortBy = { id: "mktValue", desc: true }
+        return {
+            sortBy: [lastSortBy || defaultSortBy],
+        }
+    }, [])
 
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
-        useTable({ columns, data, initialState }, useSortBy)
+    const {
+        getTableProps,
+        getTableBodyProps,
+        headerGroups,
+        rows,
+        prepareRow,
+        state,
+    } = useTable(
+        {
+            columns,
+            data,
+            initialState,
+            disableMultiSort: true,
+            disableSortRemove: true,
+        },
+        useSortBy
+    )
+
+    useEffect(() => {
+        window.localStorage.setItem("sortBy", JSON.stringify(state.sortBy[0]))
+    }, [state.sortBy])
 
     return (
         <>
