@@ -42,20 +42,18 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     }, [onHide, setShow])
 
     const getTransactions = useCallback(() => {
-        if (portfolio) {
-            getTransactionsBySymbol(user.uid, portfolio, symbol).then(
-                (transactions) => {
-                    if (transactions.length) {
-                        const orderedTransactions = sortBy(transactions, [
-                            "data.date",
-                        ]).reverse()
-                        setTransactions(orderedTransactions)
-                    } else {
-                        handleHide()
-                    }
+        getTransactionsBySymbol(user.uid, portfolio, symbol).then(
+            (transactions) => {
+                if (transactions.length) {
+                    const orderedTransactions = sortBy(transactions, [
+                        "data.date",
+                    ]).reverse()
+                    setTransactions(orderedTransactions)
+                } else {
+                    handleHide()
                 }
-            )
-        }
+            }
+        )
     }, [getTransactionsBySymbol, handleHide, portfolio, symbol, user.uid])
 
     useEffect(() => {
@@ -68,11 +66,9 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     }
 
     const handleDeleteTransaction = (transaction: Transaction) => {
-        if (portfolio) {
-            deleteTransaction(user.uid, portfolio, transaction)
-            shouldUpdate.current = true
-            getTransactions()
-        }
+        deleteTransaction(user.uid, portfolio, transaction)
+        shouldUpdate.current = true
+        getTransactions()
     }
 
     const handleTransactionModalHide = (_shouldUpdate: boolean) => {

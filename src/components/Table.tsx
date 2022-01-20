@@ -39,61 +39,54 @@ function Table(): JSX.Element {
     const { getWeightings, getCustomColumns } = PortfolioService
 
     const getTransactions = useCallback(() => {
-        if (portfolio) {
-            setLoading(true)
-            const promises: Promise<boolean>[] = []
+        setLoading(true)
+        const promises: Promise<boolean>[] = []
 
-            promises.push(
-                new Promise((resolve) => {
-                    getAllTransactions(user.uid, portfolio).then(
-                        (transactions) => {
-                            const tableDataMap = buildTableDataMap(transactions)
-                            getMarketData(Object.keys(tableDataMap)).then(
-                                (marketDataMap) => {
-                                    const { tableData, balance } =
-                                        buildTableData(
-                                            tableDataMap,
-                                            marketDataMap
+        promises.push(
+            new Promise((resolve) => {
+                getAllTransactions(user.uid, portfolio).then((transactions) => {
+                    const tableDataMap = buildTableDataMap(transactions)
+                    getMarketData(Object.keys(tableDataMap)).then(
+                        (marketDataMap) => {
+                            const { tableData, balance } = buildTableData(
+                                tableDataMap,
+                                marketDataMap
+                            )
+                            getWeightings(user.uid, portfolio).then(
+                                (weightings) => {
+                                    setData(
+                                        addWeightingProps(
+                                            tableData,
+                                            weightings,
+                                            balance
                                         )
-                                    getWeightings(user.uid, portfolio).then(
-                                        (weightings) => {
-                                            setData(
-                                                addWeightingProps(
-                                                    tableData,
-                                                    weightings,
-                                                    balance
-                                                )
-                                            )
-                                            setBalance(balance)
-                                            resolve(true)
-                                        }
                                     )
+                                    setBalance(balance)
+                                    resolve(true)
                                 }
                             )
                         }
                     )
                 })
-            )
-
-            promises.push(
-                new Promise((resolve) => {
-                    getCustomColumns(user.uid, portfolio).then(
-                        (_customColumns) => {
-                            if (_customColumns) {
-                                setCustomColumns(_customColumns)
-                            } else {
-                                setCustomColumns(defaultCustomColumns())
-                            }
-                            resolve(true)
-                        }
-                    )
-                })
-            )
-
-            Promise.all(promises).then(() => {
-                setLoading(false)
             })
-        }
+        )
+
+        promises.push(
+            new Promise((resolve) => {
+                getCustomColumns(user.uid, portfolio).then((_customColumns) => {
+                    if (_customColumns) {
+                        setCustomColumns(_customColumns)
+                    } else {
+                        setCustomColumns(defaultCustomColumns())
+                    }
+                    resolve(true)
+                })
+            })
+        )
+
+        Promise.all(promises).then(() => {
+            setLoading(false)
+        })
     }, [
         portfolio,
         setLoading,

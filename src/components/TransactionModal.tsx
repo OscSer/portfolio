@@ -52,19 +52,17 @@ function TransactionModal({
     }, [initialData, isNew, transaction, show])
 
     const handleSave = () => {
-        if (portfolio) {
-            const ref = isNew ? undefined : transaction.ref
-            const _transaction: Transaction = { ref, data }
-            saveTransaction(user.uid, portfolio, _transaction)
-            shouldUpdate.current = true
-            if (continueAdding.current) {
-                setData({
-                    ...initialData.current,
-                    date: new Date().getTime(),
-                })
-            } else {
-                handleHide()
-            }
+        const ref = isNew ? undefined : transaction.ref
+        const _transaction: Transaction = { ref, data }
+        saveTransaction(user.uid, portfolio, _transaction)
+        shouldUpdate.current = true
+        if (continueAdding.current) {
+            setData({
+                ...initialData.current,
+                date: new Date().getTime(),
+            })
+        } else {
+            handleHide()
         }
     }
 

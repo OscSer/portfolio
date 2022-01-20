@@ -8,14 +8,21 @@ const { base } = require("./create-bundle-base")
     // JavaScript bundler
     const bundler = await build({
         ...base,
+        define: {
+            "process.env.NODE_ENV": '"development"',
+            ...base.define,
+        },
         minify: false,
         incremental: true,
     })
 
     // watcher source changes.
-    watch("src/**/*.{ts,tsx,scss,png}", { ignoreInitial: true }).on("all", () => {
-        bundler.rebuild()
-    })
+    watch("src/**/*.{ts,tsx,scss,png}", { ignoreInitial: true }).on(
+        "all",
+        () => {
+            bundler.rebuild()
+        }
+    )
 
     // local server for live reload.
     start({

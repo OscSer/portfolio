@@ -1,4 +1,4 @@
-import { ProfitLoss } from "components/ProfitLoss"
+import { ProfitLoss } from "@components"
 import { Column, Row, SortByFn } from "react-table"
 import { CustomColumns } from "./CustomColumns"
 import { MarketData } from "./MarketData"
@@ -48,10 +48,10 @@ const buildTableDataMap = (
 
     const dataMap: Record<string, TableData> = {}
     Object.keys(idMap).forEach((id) => {
-        const transactions = idMap[id]
+        const _transactions = idMap[id]
         const buyTransactions: Transaction[] = []
         let unitsSoldCounter = 0
-        transactions.forEach((transaction) => {
+        _transactions.forEach((transaction) => {
             if (transaction.data.type === "SELL") {
                 unitsSoldCounter += transaction.data.units
             } else if (transaction.data.type === "BUY") {

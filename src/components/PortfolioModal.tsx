@@ -2,7 +2,7 @@ import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import FormSelect from "react-bootstrap/FormSelect"
-import { Dispatch, SetStateAction } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import { PortfolioService } from "@services"
 import { useUser } from "@hooks"
 import { Portfolio, PortfolioData, PortfolioType } from "@domain"
@@ -24,9 +24,11 @@ function PortfolioModal({
     const [user] = useUser()
     const { savePortfolio } = PortfolioService
     const isNew = !portfolio
-    const data = isNew
-        ? ({ type: PortfolioType.Cryptocurrencies } as PortfolioData)
-        : portfolio.data
+    const initialData = {
+        type: PortfolioType.Cryptocurrencies,
+        name: "",
+    } as PortfolioData
+    const [data, setData] = useState(isNew ? initialData : portfolio.data)
 
     const handleSave = () => {
         const ref = isNew ? undefined : portfolio.ref
@@ -51,11 +53,11 @@ function PortfolioModal({
                     <InputGroup className="custom">
                         <InputGroup.Text>Type</InputGroup.Text>
                         <FormSelect
-                            onChange={(event) =>
-                                (data.type = event.target
-                                    .value as PortfolioType)
-                            }
-                            defaultValue={data.type}>
+                            onChange={(event) => {
+                                data.type = event.target.value as PortfolioType
+                                setData({ ...data })
+                            }}
+                            value={data.type}>
                             {Object.keys(PortfolioType).map((key: string) => (
                                 <option
                                     key={key}
@@ -74,10 +76,11 @@ function PortfolioModal({
                         <InputGroup.Text>Name</InputGroup.Text>
                         <Form.Control
                             type="text"
-                            onChange={(event) =>
-                                (data.name = event.target.value)
-                            }
-                            defaultValue={data.name}
+                            onChange={(event) => {
+                                data.name = event.target.value
+                                setData({ ...data })
+                            }}
+                            value={data.name}
                         />
                     </InputGroup>
                 </Form>
@@ -87,7 +90,7 @@ function PortfolioModal({
                 <Button
                     variant="primary"
                     onClick={handleSave}
-                    disabled={Object.keys(data).length < 2}>
+                    disabled={!data.type || !data.name}>
                     Save
                 </Button>
             </Modal.Footer>

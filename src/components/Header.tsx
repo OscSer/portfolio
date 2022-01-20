@@ -15,6 +15,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp"
 function Header(): JSX.Element {
     const [user] = useUser()
     const [portfolio, setPortfolio] = usePortfolio()
+    const portfolioRef = useRef<Portfolio>()
     const [showModal, setShowModal] = useState(false)
     const [options, setOptions] = useState<JSX.Element[]>([])
     const { auth } = FirebaseService
@@ -28,10 +29,12 @@ function Header(): JSX.Element {
             } else {
                 portfolios.current = _portfolios
                 const _options: JSX.Element[] = []
-                _portfolios.forEach((portfolio) => {
+                _portfolios.forEach((_portfolio) => {
                     const option = (
-                        <option key={portfolio.ref} value={portfolio.ref || ""}>
-                            {portfolio.data.name}
+                        <option
+                            key={_portfolio.ref}
+                            value={_portfolio.ref || ""}>
+                            {_portfolio.data.name}
                         </option>
                     )
                     _options.push(option)
@@ -54,9 +57,12 @@ function Header(): JSX.Element {
 
     const handlePortfolioChange = (event: ChangeEvent<HTMLSelectElement>) => {
         const ref = event.target.value
-        const portfolio = find(portfolios.current, { ref })
-        window.localStorage.setItem("selectedPortfolio", ref)
-        setPortfolio(portfolio)
+        const _portfolio = find(portfolios.current, { ref })
+        if (_portfolio) {
+            window.localStorage.setItem("selectedPortfolio", ref)
+            portfolioRef.current = _portfolio
+            setPortfolio(_portfolio)
+        }
     }
 
     const handleModalHide = (shouldUpdate: boolean) => {
@@ -64,11 +70,12 @@ function Header(): JSX.Element {
     }
 
     const handlePortfolioEdit = () => {
+        portfolioRef.current = portfolio
         setShowModal(true)
     }
 
     const handlePortfolioAdd = () => {
-        setPortfolio(undefined)
+        portfolioRef.current = undefined
         setShowModal(true)
     }
 
@@ -94,7 +101,7 @@ function Header(): JSX.Element {
                 <PortfolioModal
                     show={showModal}
                     setShow={setShowModal}
-                    portfolio={portfolio}
+                    portfolio={portfolioRef.current}
                     onHide={handleModalHide}
                 />
             ) : null}
