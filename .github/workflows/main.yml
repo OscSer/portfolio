@@ -1,9 +1,12 @@
-name: Main Action
+name: Main
 on: [push]
 jobs:
-    Main:
+    checkout:
         runs-on: ubuntu-latest
         steps:
+            - name: Check out repository
+              uses: actions/checkout@v2
+              run: cd ${{ github.workspace }}
             - name: Install
               run: yarn install
             - name: Test
