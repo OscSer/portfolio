@@ -33,7 +33,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const shouldUpdate = useRef(false)
     const { getTransactionsBySymbol, deleteTransaction } = TransactionService
-    const { priceToString } = Utils
+    const { priceToString, unitsToString } = Utils
 
     const handleHide = useCallback(() => {
         onHide(shouldUpdate.current)
@@ -43,9 +43,9 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
 
     const getTransactions = useCallback(() => {
         getTransactionsBySymbol(user.uid, portfolio, symbol).then(
-            (transactions) => {
-                if (transactions.length) {
-                    const orderedTransactions = sortBy(transactions, [
+            (_transactions) => {
+                if (_transactions.length) {
+                    const orderedTransactions = sortBy(_transactions, [
                         "data.date",
                     ]).reverse()
                     setTransactions(orderedTransactions)
@@ -60,13 +60,13 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
         getTransactions()
     }, [getTransactions, symbol])
 
-    const handleEditTransaction = (transaction: Transaction) => {
-        setTransaction(transaction)
+    const handleEditTransaction = (_transaction: Transaction) => {
+        setTransaction(_transaction)
         setShowTransactionModal(true)
     }
 
-    const handleDeleteTransaction = (transaction: Transaction) => {
-        deleteTransaction(user.uid, portfolio, transaction)
+    const handleDeleteTransaction = (_transaction: Transaction) => {
+        deleteTransaction(user.uid, portfolio, _transaction)
         shouldUpdate.current = true
         getTransactions()
     }
@@ -81,54 +81,58 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     return (
         <Modal show={show} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{symbol.toUpperCase()}</Modal.Title>
+                <Modal.Title>
+                    <strong>{symbol.toUpperCase()}</strong>
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
                 <ListGroup>
-                    {transactions.map((transaction) => (
-                        <ListGroup.Item key={transaction.ref}>
+                    {transactions.map((_transaction) => (
+                        <ListGroup.Item key={_transaction.ref}>
                             <div className="group">
                                 <div className="date">
                                     {new Date(
-                                        transaction.data.date
+                                        _transaction.data.date
                                     ).toLocaleString()}
                                 </div>
                                 <div className="type">
                                     <ProfitLoss
                                         value={
-                                            transaction.data.type === "BUY"
+                                            _transaction.data.type === "BUY"
                                                 ? 1
                                                 : -1
                                         }>
-                                        {transaction.data.type}
+                                        {_transaction.data.type}
                                     </ProfitLoss>
                                 </div>
                                 <div className="units">
-                                    {transaction.data.units}
+                                    {unitsToString(_transaction.data.units)}
                                 </div>
                                 <div className="price">
                                     {`Price: ${priceToString(
-                                        transaction.data.price
+                                        _transaction.data.price
                                     )}`}
                                 </div>
                                 <div className="total">
                                     {`Total: ${priceToString(
-                                        transaction.data.units *
-                                            transaction.data.price
+                                        _transaction.data.units *
+                                            _transaction.data.price
                                     )}`}
                                 </div>
                                 <div className="actions">
                                     <EditIcon
                                         className="icon"
                                         onClick={() =>
-                                            handleEditTransaction(transaction)
+                                            handleEditTransaction(_transaction)
                                         }
                                     />
                                     <DeleteIcon
                                         className="icon"
                                         onClick={() =>
-                                            handleDeleteTransaction(transaction)
+                                            handleDeleteTransaction(
+                                                _transaction
+                                            )
                                         }
                                     />
                                 </div>

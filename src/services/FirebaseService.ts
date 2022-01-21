@@ -4,7 +4,7 @@ import {
     GoogleAuthProvider,
     indexedDBLocalPersistence,
 } from "firebase/auth"
-import { getDatabase } from "firebase/database"
+import { getDatabase, onDisconnect, ref } from "firebase/database"
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -20,5 +20,17 @@ const provider = new GoogleAuthProvider()
 const auth = getAuth()
 auth.setPersistence(indexedDBLocalPersistence)
 const db = getDatabase(app)
+
+const presenceRef = ref(db, "disconnectmessage")
+onDisconnect(presenceRef)
+    .remove()
+    .catch((err) => {
+        console.log("onDisconnect>", err)
+        // const onLine = window.navigator.onLine
+        // if (err) {
+        //     console.log("code>", err.code)
+        //     console.log("message>", err.message)
+        // }
+    })
 
 export default { provider, auth, db }
