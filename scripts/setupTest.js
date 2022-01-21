@@ -5,6 +5,10 @@ jest.mock("firebase/database", () => {
     return {
         ...actual,
         getDatabase: jest.fn(),
+        ref: jest.fn(),
+        onDisconnect: jest.fn(() => ({
+            remove: jest.fn(() => ({ catch: jest.fn() })),
+        })),
     }
 })
 

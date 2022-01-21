@@ -34,6 +34,11 @@ const percentToString = (percent: number | undefined): string => {
     )
 }
 
+const unitsToString = (units: number): string => {
+    if (units === undefined) return ""
+    return Number(units.toFixed(8)).toString()
+}
+
 const buildTableDataMap = (
     transactions: Transaction[]
 ): Record<string, TableData> => {
@@ -273,7 +278,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             accessor: "holdings",
             sortDescFirst: true,
             sortType: sortByfn,
-            Cell: ({ value }) => Number(value.toFixed(8)),
+            Cell: ({ value }) => unitsToString(value),
         },
         {
             Header: "Mkt Value",
@@ -339,4 +344,5 @@ export default {
     addWeightingProps,
     getColumns,
     defaultCustomColumns,
+    unitsToString,
 }

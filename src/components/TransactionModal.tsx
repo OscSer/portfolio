@@ -12,6 +12,7 @@ import {
     Transaction,
     TransactionData,
     TransactionType,
+    Utils,
 } from "@domain"
 import { DatePicker } from "./DatePicker"
 import { Typeahead } from "react-bootstrap-typeahead"
@@ -37,11 +38,14 @@ function TransactionModal({
     const isNew = !transaction
     const initialData = useRef({
         type: TransactionType.Buy,
+        units: NaN,
+        price: NaN,
     } as TransactionData)
     const [data, setData] = useState<TransactionData>(initialData.current)
     const coinList = SymbolMap.getInstance().coinList
     const coinMap = SymbolMap.getInstance().coinMap
     const shouldUpdate = useRef(false)
+    const { priceToString } = Utils
 
     useEffect(() => {
         if (isNew) {
@@ -116,6 +120,7 @@ function TransactionModal({
                     <InputGroup className="custom">
                         <InputGroup.Text>Symbol</InputGroup.Text>
                         <Typeahead
+                            id="symbol"
                             selected={data.id ? [coinMap[data.id]] : []}
                             onChange={(selected) => {
                                 const coin = selected[0] as Coin
@@ -151,7 +156,7 @@ function TransactionModal({
                                     units: value === "" ? NaN : Number(value),
                                 }))
                             }}
-                            value={data.units === undefined ? "" : data.units}
+                            value={isNaN(data.units) ? "" : data.units}
                         />
                     </InputGroup>
 
@@ -166,16 +171,20 @@ function TransactionModal({
                                     price: value === "" ? NaN : Number(value),
                                 }))
                             }}
-                            value={data.price === undefined ? "" : data.price}
+                            value={isNaN(data.price) ? "" : data.price}
                         />
                     </InputGroup>
 
                     <InputGroup className="custom">
                         <InputGroup.Text>Total</InputGroup.Text>
                         <Form.Control
-                            type="number"
+                            type="text"
                             disabled
-                            value={Number(data.price) * Number(data.units)}
+                            value={
+                                isNaN(data.price) || isNaN(data.units)
+                                    ? 0
+                                    : priceToString(data.price * data.units)
+                            }
                         />
                     </InputGroup>
                 </Form>
