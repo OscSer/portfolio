@@ -99,13 +99,14 @@ const buildTableData = (
         const coin = tableDataMap[id]
         const market = marketDataMap[id]
         const mktValue = coin.holdings * market.price
-        const profit = mktValue - coin.cost
+        const profit = mktValue - coin.cost || 0
+        const profitPercent = (coin.cost && 100 * (profit / coin.cost)) || 0
         tableData.push({
             ...coin,
             ...market,
             mktValue,
             profit,
-            profitPercent: 100 * (profit / coin.cost),
+            profitPercent,
             costAvg: coin.cost / coin.holdings,
         })
         balance += mktValue
@@ -129,8 +130,8 @@ const addWeightingProps = (
         return {
             ...data,
             weightingCurrent,
-            weightingDesired,
-            weightingDiff,
+            ...(weightingDesired && { weightingDesired }),
+            ...(weightingDiff && { weightingDiff }),
         }
     })
 }
@@ -160,11 +161,13 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
         rowB: Row<TableData>,
         columnId: string
     ) => {
-        const a: TableData = rowA.original
-        const b: TableData = rowB.original
-        const id = columnId as keyof TableData
-        if (a[id] > b[id]) return 1
-        if (b[id] > a[id]) return -1
+        const _rowA: TableData = rowA.original
+        const _rowB: TableData = rowB.original
+        const _columnId = columnId as keyof TableData
+        const valueA = _rowA[_columnId] || 0
+        const valueB = _rowB[_columnId] || 0
+        if (valueA > valueB) return 1
+        if (valueB > valueA) return -1
         return 0
     }
 
@@ -313,7 +316,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             accessor: "weightingDesired",
             sortDescFirst: true,
             sortType: sortByfn,
-            Cell: ({ value }) => (value ? percentToString(value) : ""),
+            Cell: ({ value }) => percentToString(value),
         },
         {
             Header: "Weight Diff",
@@ -321,9 +324,7 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
             sortDescFirst: true,
             sortType: sortByfn,
             Cell: ({ value }: { value: number }) => (
-                <ProfitLoss value={value}>
-                    {value ? priceToString(value) : ""}
-                </ProfitLoss>
+                <ProfitLoss value={value}>{priceToString(value)}</ProfitLoss>
             ),
         },
     ]
