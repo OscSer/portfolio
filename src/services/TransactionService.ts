@@ -39,18 +39,18 @@ const getAllTransactions = (
     })
 }
 
-const getTransactionsBySymbol = (
+const getTransactionsById = (
     uid: string,
     portfolio: Portfolio,
-    symbol: string
+    coinId: string
 ): Promise<Transaction[]> => {
     return new Promise((resolve) => {
-        if (!symbol) resolve([])
+        if (!coinId) resolve([])
 
         const _query = query(
             ref(db, `users/${uid}/portfolios/${portfolio.ref}/transactions`),
-            orderByChild("symbol"),
-            equalTo(symbol)
+            orderByChild("id"),
+            equalTo(coinId)
         )
 
         get(_query).then((snapshot) => {
@@ -97,6 +97,6 @@ const deleteTransaction = (
 export default {
     getAllTransactions,
     saveTransaction,
-    getTransactionsBySymbol,
+    getTransactionsById,
     deleteTransaction,
 }

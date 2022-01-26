@@ -1,5 +1,4 @@
 import { Coin } from "./Coin"
-import { sortBy } from "lodash"
 
 export class SymbolMap {
     private static instance: SymbolMap
@@ -10,16 +9,24 @@ export class SymbolMap {
         /* singleton */
     }
 
+    private static sortList(a: Coin, b: Coin) {
+        const valueA = a.symbol.length
+        const valueB = b.symbol.length
+        return valueA - valueB
+    }
+
     public static getInstance(): SymbolMap {
         if (!SymbolMap.instance) {
             SymbolMap.instance = new SymbolMap()
             fetch("https://api.coingecko.com/api/v3/coins/list")
                 .then((response) => response.json())
                 .then((data) => {
-                    SymbolMap.instance.coinList = sortBy(data, [
-                        "symbol",
-                    ]).filter((coin) => coin.symbol && coin.id)
-                    data.forEach((coin: Coin) => {
+                    const filteredList = data.filter(
+                        (coin: Coin) => coin.symbol && coin.id
+                    )
+                    const sortedList = filteredList.sort(this.sortList)
+                    SymbolMap.instance.coinList = sortedList
+                    sortedList.forEach((coin: Coin) => {
                         SymbolMap.instance.coinMap[coin.id] = coin
                     })
                 })
