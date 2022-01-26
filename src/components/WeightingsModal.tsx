@@ -5,8 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react"
 import { usePortfolio, useTableData, useUser } from "@hooks"
 import { InputGroup } from "react-bootstrap"
 import { PortfolioService } from "@services"
-import { isNumber } from "lodash"
-import { Weightings } from "@domain"
+import { TableData, Weightings } from "@domain"
 
 type Props = {
     show: boolean
@@ -16,20 +15,18 @@ type Props = {
 
 function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     const [weightings, setWeightings] = useState<Weightings>({})
+    const [total, setTotal] = useState(0)
     const [data] = useTableData()
     const [user] = useUser()
     const [portfolio] = usePortfolio()
-    const [total, setTotal] = useState(0)
     const { getWeightings, saveWeightings } = PortfolioService
 
     useEffect(() => {
         getWeightings(user.uid, portfolio).then((_weightings) => {
             const newWeightings: Weightings = {}
-            data.forEach((item) => {
-                const value = _weightings[item.id]
-                if (value) {
-                    newWeightings[item.id] = value
-                }
+            data.forEach((coin) => {
+                const value = _weightings[coin.id]
+                if (value) newWeightings[coin.id] = value
             })
             setWeightings(newWeightings)
         })
@@ -39,7 +36,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
         let count = 0
         Object.keys(weightings).forEach((key) => {
             const value = weightings[key]
-            count += isNumber(value) ? value : 0
+            count += value || 0
         })
         setTotal(count)
     }, [weightings])
@@ -54,6 +51,13 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
         setShow(false)
     }
 
+    const getSortedData = () =>
+        data.sort((a: TableData, b: TableData) => {
+            const valueA = weightings[a.id] || 0
+            const valueB = weightings[b.id] || 0
+            return valueB - valueA
+        })
+
     return (
         <Modal show={show} onHide={() => handleHide(false)} size="sm">
             <Modal.Header closeButton>
@@ -62,7 +66,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
 
             <Modal.Body>
                 <Form>
-                    {data.map((item) => (
+                    {getSortedData().map((item) => (
                         <InputGroup key={item.id} className="custom">
                             <InputGroup.Text>
                                 {item.symbol.toUpperCase()}
@@ -75,7 +79,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
                                         value === "" ? NaN : Number(value)
                                     setWeightings({ ...weightings })
                                 }}
-                                value={weightings[item.id]}
+                                value={weightings[item.id] || ""}
                             />
                             <InputGroup.Text style={{ width: "auto" }}>
                                 %

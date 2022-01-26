@@ -1,6 +1,6 @@
 import "./Table.scss"
 import { TableData, Utils } from "@domain"
-import { Column, useTable, useSortBy, TableState } from "react-table"
+import { Column, useTable, useSortBy, TableState, CellProps } from "react-table"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import {
     CoinGeckoService,
@@ -31,7 +31,7 @@ function Table(): JSX.Element {
     const [data, setData] = useTableData()
     const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
-    const [symbol, setSymbol] = useState("")
+    const [coinId, setCoinId] = useState("")
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
     const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
@@ -107,15 +107,15 @@ function Table(): JSX.Element {
         getTransactions()
     }, [getTransactions, portfolio])
 
-    const showSymbolModal = useCallback((symbol: string) => {
-        setSymbol(symbol)
+    const showSymbolModal = useCallback((_coinId: string) => {
+        setCoinId(_coinId)
         setShowModal(true)
     }, [])
 
     const handleHide = useCallback(
         (shouldUpdate: boolean) => {
             if (shouldUpdate) {
-                setSymbol("")
+                setCoinId("")
                 getTransactions()
             }
         },
@@ -127,10 +127,10 @@ function Table(): JSX.Element {
             {
                 Header: "Symbol",
                 accessor: "symbol",
-                Cell: ({ value }: { value: string }) => (
+                Cell: ({ value, row }: CellProps<TableData>) => (
                     <div
                         className="symbol"
-                        onClick={() => showSymbolModal(value)}>
+                        onClick={() => showSymbolModal(row.original.id)}>
                         {value.toUpperCase()}
                     </div>
                 ),
@@ -175,14 +175,16 @@ function Table(): JSX.Element {
         <>
             <table {...getTableProps()}>
                 <thead>
-                    {headerGroups.map((headerGroup, index) => (
-                        <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                            {headerGroup.headers.map((column, index) => (
+                    {headerGroups.map((headerGroup, hgIndex) => (
+                        <tr
+                            {...headerGroup.getHeaderGroupProps()}
+                            key={hgIndex}>
+                            {headerGroup.headers.map((column, hIndex) => (
                                 <th
                                     {...column.getHeaderProps(
                                         column.getSortByToggleProps()
                                     )}
-                                    key={index}>
+                                    key={hIndex}>
                                     {column.render("Header")}
                                     <span>
                                         {column.isSorted ? (
@@ -201,15 +203,15 @@ function Table(): JSX.Element {
                     ))}
                 </thead>
                 <tbody {...getTableBodyProps()}>
-                    {rows.map((row, index) => {
+                    {rows.map((row, rIndex) => {
                         prepareRow(row)
                         return (
-                            <tr {...row.getRowProps()} key={index}>
-                                {row.cells.map((cell, index) => {
+                            <tr {...row.getRowProps()} key={rIndex}>
+                                {row.cells.map((cell, cIndex) => {
                                     return (
                                         <td
                                             {...cell.getCellProps()}
-                                            key={index}>
+                                            key={cIndex}>
                                             {cell.render("Cell")}
                                         </td>
                                     )
@@ -221,7 +223,7 @@ function Table(): JSX.Element {
             </table>
             {showModal ? (
                 <SymbolModal
-                    symbol={symbol}
+                    coinId={coinId}
                     show={showModal}
                     setShow={setShowModal}
                     onHide={handleHide}

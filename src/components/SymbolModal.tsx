@@ -10,7 +10,7 @@ import {
 } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { Transaction, Utils } from "@domain"
+import { SymbolMap, Transaction, Utils } from "@domain"
 import { ListGroup } from "react-bootstrap"
 import EditIcon from "@material-ui/icons/Edit"
 import DeleteIcon from "@material-ui/icons/Delete"
@@ -22,18 +22,19 @@ type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
     onHide: (shouldUpdate: boolean) => void
-    symbol: string
+    coinId: string
 }
 
-function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
+function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [transaction, setTransaction] = useState<Transaction>()
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const shouldUpdate = useRef(false)
-    const { getTransactionsBySymbol, deleteTransaction } = TransactionService
+    const { getTransactionsById, deleteTransaction } = TransactionService
     const { priceToString, unitsToString } = Utils
+    const coinMap = SymbolMap.getInstance().coinMap
 
     const handleHide = useCallback(() => {
         onHide(shouldUpdate.current)
@@ -42,7 +43,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     }, [onHide, setShow])
 
     const getTransactions = useCallback(() => {
-        getTransactionsBySymbol(user.uid, portfolio, symbol).then(
+        getTransactionsById(user.uid, portfolio, coinId).then(
             (_transactions) => {
                 if (_transactions.length) {
                     const orderedTransactions = sortBy(_transactions, [
@@ -54,11 +55,11 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
                 }
             }
         )
-    }, [getTransactionsBySymbol, handleHide, portfolio, symbol, user.uid])
+    }, [getTransactionsById, handleHide, portfolio, coinId, user.uid])
 
     useEffect(() => {
         getTransactions()
-    }, [getTransactions, symbol])
+    }, [getTransactions, coinId])
 
     const handleEditTransaction = (_transaction: Transaction) => {
         setTransaction(_transaction)
@@ -81,9 +82,7 @@ function SymbolModal({ show, setShow, symbol, onHide }: Props): JSX.Element {
     return (
         <Modal show={show} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>
-                    <strong>{symbol.toUpperCase()}</strong>
-                </Modal.Title>
+                <Modal.Title>{coinMap[coinId].name}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>

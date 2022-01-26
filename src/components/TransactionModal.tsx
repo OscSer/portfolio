@@ -3,6 +3,7 @@ import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import FormSelect from "react-bootstrap/FormSelect"
+import InputGroup from "react-bootstrap/InputGroup"
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
@@ -16,7 +17,10 @@ import {
 } from "@domain"
 import { DatePicker } from "./DatePicker"
 import { Typeahead } from "react-bootstrap-typeahead"
-import { InputGroup } from "react-bootstrap"
+import {
+    Option,
+    TypeaheadPropsAndState,
+} from "react-bootstrap-typeahead/types/types"
 
 type Props = {
     show: boolean
@@ -75,6 +79,26 @@ function TransactionModal({
         setShow(false)
     }
 
+    const labelKey = (option: Option) => {
+        const coin = option as Coin
+        return `${coin.symbol.toUpperCase()} (${coin.name})`
+    }
+
+    const filterBy = (option: Option, state: TypeaheadPropsAndState) => {
+        const coin = option as Coin
+        if (state.selected.length) return true
+        return coin.symbol.toLowerCase().startsWith(state.text.toLowerCase())
+    }
+
+    const handleSymbolChange = (selected: Option[]) => {
+        const coin = (selected[0] as Coin) || {}
+        setData((prev) => ({
+            ...prev,
+            id: coin.id || "",
+            symbol: coin.symbol || "",
+        }))
+    }
+
     return (
         <Modal show={show} onHide={handleHide} className="transaction-modal">
             <Modal.Header closeButton>
@@ -122,26 +146,11 @@ function TransactionModal({
                         <Typeahead
                             id="symbol"
                             selected={data.id ? [coinMap[data.id]] : []}
-                            onChange={(selected) => {
-                                const coin = selected[0] as Coin
-                                if (coin) {
-                                    setData((prev) => ({
-                                        ...prev,
-                                        id: coin.id,
-                                        symbol: coin.symbol,
-                                    }))
-                                }
-                            }}
-                            labelKey={(option) => {
-                                const o = option as Coin
-                                return `${o.symbol.toUpperCase()} (${o.name})`
-                            }}
-                            filterBy={(option, props) => {
-                                const o = option as Coin
-                                const p = props as { text: string }
-                                return o.symbol.startsWith(p.text.toLowerCase())
-                            }}
+                            onChange={handleSymbolChange}
+                            labelKey={labelKey}
+                            filterBy={filterBy}
                             options={coinList}
+                            maxResults={5}
                         />
                     </InputGroup>
 
@@ -208,7 +217,9 @@ function TransactionModal({
                     disabled={
                         Object.keys(data).length < 6 ||
                         isNaN(data.price) ||
-                        isNaN(data.units)
+                        isNaN(data.units) ||
+                        !data.id ||
+                        !data.symbol
                     }>
                     Save
                 </Button>
