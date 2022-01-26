@@ -9,6 +9,7 @@ export class MarketData {
     priceChange1y: number
     ath: number
     athChange: number
+    image?: string
 
     constructor() {
         this.price = 0

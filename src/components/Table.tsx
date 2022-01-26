@@ -17,6 +17,7 @@ import {
 import { SymbolModal } from "./SymbolModal"
 import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
+import CompareArrowsIcon from "@material-ui/icons/CompareArrows"
 
 function Table(): JSX.Element {
     const {
@@ -126,16 +127,25 @@ function Table(): JSX.Element {
         () => [
             {
                 Header: "Symbol",
-                accessor: "symbol",
-                Cell: ({ value, row }: CellProps<TableData>) => (
-                    <div
-                        className="symbol"
-                        onClick={() => showSymbolModal(row.original.id)}>
-                        {value.toUpperCase()}
+                Cell: ({ row }: CellProps<TableData>) => (
+                    <div className="symbol">
+                        <img src={row.original.image} />
+                        {row.original.symbol.toUpperCase()}
                     </div>
                 ),
             },
             ...getColumns(customColumns),
+            {
+                Header: "Actions",
+                Cell: ({ row }: CellProps<TableData>) => (
+                    <div className="actions">
+                        <CompareArrowsIcon
+                            className="icon"
+                            onClick={() => showSymbolModal(row.original.id)}
+                        />
+                    </div>
+                ),
+            },
         ],
         [customColumns, getColumns, showSymbolModal]
     )
@@ -185,7 +195,6 @@ function Table(): JSX.Element {
                                         column.getSortByToggleProps()
                                     )}
                                     key={hIndex}>
-                                    {column.render("Header")}
                                     <span>
                                         {column.isSorted ? (
                                             column.isSortedDesc ? (
@@ -197,6 +206,7 @@ function Table(): JSX.Element {
                                             ""
                                         )}
                                     </span>
+                                    {column.render("Header")}
                                 </th>
                             ))}
                         </tr>

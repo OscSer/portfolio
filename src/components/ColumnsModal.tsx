@@ -16,7 +16,7 @@ type Props = {
     onHide: (shouldUpdate: boolean) => void
 }
 
-const unavailableColumns: Array<keyof TableData> = ["id", "symbol"]
+const unavailableColumns: Array<keyof TableData> = ["id", "symbol", "image"]
 
 function ColumnsModal({ show, setShow, onHide }: Props): JSX.Element {
     const { defaultCustomColumns } = Utils

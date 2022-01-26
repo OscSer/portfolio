@@ -1,3 +1,3 @@
 # Portfolio
 
-Live: [oscser.github.io/portfolio](https://oscser.github.io/portfolio/)
+Portfolio for assets in cryptocurrencies and stock market
