@@ -35,6 +35,7 @@ const getMarketData = (ids: string[]): Promise<Record<string, MarketData>> => {
                                     0,
                                 priceChange1y:
                                     marketData.price_change_percentage_1y || 0,
+                                image: data.image.thumb,
                             }
                         }
                         resolve(true)
