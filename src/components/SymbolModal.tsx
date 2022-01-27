@@ -37,9 +37,9 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     const coinMap = SymbolMap.getInstance().coinMap
 
     const handleHide = useCallback(() => {
-        onHide(shouldUpdate.current)
-        setShow(false)
         setTransactions([])
+        setShow(false)
+        onHide(shouldUpdate.current)
     }, [onHide, setShow])
 
     const getTransactions = useCallback(() => {
@@ -82,7 +82,7 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     return (
         <Modal show={show} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{coinMap[coinId].name}</Modal.Title>
+                <Modal.Title>{coinId && coinMap[coinId].name}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
