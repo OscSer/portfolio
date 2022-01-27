@@ -1,7 +1,7 @@
 import Modal from "react-bootstrap/Modal"
 import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
-import { Dispatch, SetStateAction, useEffect, useState } from "react"
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
 import { usePortfolio, useTableData, useUser } from "@hooks"
 import { InputGroup } from "react-bootstrap"
 import { PortfolioService } from "@services"
@@ -20,6 +20,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const { getWeightings, saveWeightings } = PortfolioService
+    const sortedData = useRef<TableData[]>([])
 
     useEffect(() => {
         getWeightings(user.uid, portfolio).then((_weightings) => {
@@ -27,6 +28,11 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
             data.forEach((coin) => {
                 const value = _weightings[coin.id]
                 if (value) newWeightings[coin.id] = value
+            })
+            sortedData.current = data.sort((a: TableData, b: TableData) => {
+                const valueA = newWeightings[a.id] || 0
+                const valueB = newWeightings[b.id] || 0
+                return valueB - valueA
             })
             setWeightings(newWeightings)
         })
@@ -51,13 +57,6 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
         setShow(false)
     }
 
-    const getSortedData = () =>
-        data.sort((a: TableData, b: TableData) => {
-            const valueA = weightings[a.id] || 0
-            const valueB = weightings[b.id] || 0
-            return valueB - valueA
-        })
-
     return (
         <Modal show={show} onHide={() => handleHide(false)} size="sm">
             <Modal.Header closeButton>
@@ -66,7 +65,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
 
             <Modal.Body>
                 <Form>
-                    {getSortedData().map((item) => (
+                    {sortedData.current.map((item) => (
                         <InputGroup key={item.id} className="custom">
                             <InputGroup.Text>
                                 {item.symbol.toUpperCase()}
