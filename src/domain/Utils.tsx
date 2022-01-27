@@ -159,13 +159,18 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
     const sortByfn: SortByFn<TableData> = (
         rowA: Row<TableData>,
         rowB: Row<TableData>,
-        columnId: string
+        columnId: string,
+        desc?: boolean
     ) => {
         const _rowA: TableData = rowA.original
         const _rowB: TableData = rowB.original
         const _columnId = columnId as keyof TableData
-        const valueA = _rowA[_columnId] || 0
-        const valueB = _rowB[_columnId] || 0
+
+        const valueA = _rowA[_columnId]
+        if (valueA === undefined) return desc ? -1 : 1
+        const valueB = _rowB[_columnId]
+        if (valueB === undefined) return desc ? 1 : -1
+
         if (valueA > valueB) return 1
         if (valueB > valueA) return -1
         return 0
