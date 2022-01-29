@@ -1,14 +1,15 @@
 import { ProfitLoss } from "@components"
+import { AmeritradeService, CoinGeckoService, MarketDataService } from "@services"
 import { Column, Row, SortByFn } from "react-table"
 import { CustomColumns } from "./CustomColumns"
 import { MarketData } from "./MarketData"
+import { Portfolio, PortfolioType } from "./Portfolio"
 import { TableData } from "./TableData"
 import { Transaction } from "./Transaction"
 import { Weightings } from "./Weightings"
 
 const getUniqueId = (length = 20): string => {
-    const chars =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
     let result = ""
     for (let i = 0; i < length; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length))
@@ -40,15 +41,14 @@ const unitsToString = (units: number): string => {
 }
 
 const buildTableDataMap = (
-    transactions: Transaction[]
+    transactions: Transaction[],
+    portfolio: Portfolio
 ): Record<string, TableData> => {
     const idMap: Record<string, Transaction[]> = {}
     transactions.forEach((transaction) => {
-        const id = transaction.data.id
-        if (!idMap[id]) {
-            idMap[id] = []
-        }
-        idMap[id].push(transaction)
+        const key = transaction.data.id
+        if (!idMap[key]) idMap[key] = []
+        idMap[key].push(transaction)
     })
 
     const dataMap: Record<string, TableData> = {}
@@ -65,8 +65,9 @@ const buildTableDataMap = (
         })
         buyTransactions.forEach((transaction) => {
             const data = transaction.data
-            if (!dataMap[data.id]) {
-                dataMap[data.id] = {
+            const _key = portfolio.data.type === PortfolioType.Crypto ? data.id : data.symbol
+            if (!dataMap[_key]) {
+                dataMap[_key] = {
                     id: data.id,
                     symbol: data.symbol,
                     holdings: 0,
@@ -77,8 +78,8 @@ const buildTableDataMap = (
             if (unitsSoldCounter === 0 || unitsSoldCounter < data.units) {
                 const units = data.units - unitsSoldCounter
                 const cost = units * data.price
-                dataMap[data.id].holdings += units
-                dataMap[data.id].cost += cost
+                dataMap[_key].holdings += units
+                dataMap[_key].cost += cost
                 unitsSoldCounter = 0
             } else {
                 unitsSoldCounter -= data.units
@@ -114,24 +115,19 @@ const buildTableData = (
     return { tableData, balance }
 }
 
-const addWeightingProps = (
-    tableData: TableData[],
-    weightings: Weightings,
-    balance: number
-) => {
+const addWeightingProps = (tableData: TableData[], weightings: Weightings, balance: number) => {
     return tableData.map((data): TableData => {
         const weightingCurrent = 100 * (Number(data.mktValue) / balance)
         const weightingDesired = weightings[data.id] || 0
         let weightingDiff = 0
         if (weightingCurrent && weightingDesired) {
-            weightingDiff =
-                balance * ((weightingDesired - weightingCurrent) / 100)
+            weightingDiff = balance * ((weightingDesired - weightingCurrent) / 100)
         }
         return {
             ...data,
-            weightingCurrent,
             ...(weightingDesired && { weightingDesired }),
             ...(weightingDiff && { weightingDiff }),
+            weightingCurrent,
         }
     })
 }
@@ -335,10 +331,17 @@ const getColumns = (customColumns: CustomColumns): Column<TableData>[] => {
     ]
 
     return columns.filter((column) =>
-        column.accessor
-            ? customColumns[String(column.accessor) as keyof TableData]
-            : true
+        column.accessor ? customColumns[String(column.accessor) as keyof TableData] : true
     )
+}
+
+const getMarketDataService = (portfolio: Portfolio): MarketDataService => {
+    const services = {
+        defaul: new CoinGeckoService(),
+        [PortfolioType.Crypto]: new CoinGeckoService(),
+        [PortfolioType.StockMarket]: new AmeritradeService(),
+    }
+    return services[portfolio.data.type] || services.defaul
 }
 
 export default {
@@ -351,4 +354,5 @@ export default {
     getColumns,
     defaultCustomColumns,
     unitsToString,
+    getMarketDataService,
 }

@@ -15,17 +15,12 @@ type Props = {
     portfolio?: Portfolio
 }
 
-function PortfolioModal({
-    show,
-    setShow,
-    portfolio,
-    onHide,
-}: Props): JSX.Element {
+function PortfolioModal({ show, setShow, portfolio, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const { savePortfolio } = PortfolioService
     const isNew = !portfolio
     const initialData = {
-        type: PortfolioType.Cryptocurrencies,
+        type: PortfolioType.Crypto,
         name: "",
     } as PortfolioData
     const [data, setData] = useState(isNew ? initialData : portfolio.data)
@@ -61,11 +56,7 @@ function PortfolioModal({
                             {Object.keys(PortfolioType).map((key: string) => (
                                 <option
                                     key={key}
-                                    value={
-                                        PortfolioType[
-                                            key as keyof typeof PortfolioType
-                                        ]
-                                    }>
+                                    value={PortfolioType[key as keyof typeof PortfolioType]}>
                                     {key}
                                 </option>
                             ))}
@@ -87,10 +78,7 @@ function PortfolioModal({
             </Modal.Body>
 
             <Modal.Footer>
-                <Button
-                    variant="primary"
-                    onClick={handleSave}
-                    disabled={!data.type || !data.name}>
+                <Button variant="primary" onClick={handleSave} disabled={!data.type || !data.name}>
                     Save
                 </Button>
             </Modal.Footer>

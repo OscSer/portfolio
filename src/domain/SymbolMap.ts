@@ -1,7 +1,7 @@
 import { Coin } from "./Coin"
 
-export class SymbolMap {
-    private static instance: SymbolMap
+export class CoinGeckoList {
+    private static instance: CoinGeckoList
     public coinMap: Record<string, Coin> = {}
     public coinList: Coin[] = []
 
@@ -15,22 +15,20 @@ export class SymbolMap {
         return valueA - valueB
     }
 
-    public static getInstance(): SymbolMap {
-        if (!SymbolMap.instance) {
-            SymbolMap.instance = new SymbolMap()
+    public static getInstance(): CoinGeckoList {
+        if (!CoinGeckoList.instance) {
+            CoinGeckoList.instance = new CoinGeckoList()
             fetch("https://api.coingecko.com/api/v3/coins/list")
                 .then((response) => response.json())
                 .then((data) => {
-                    const filteredList = data.filter(
-                        (coin: Coin) => coin.symbol && coin.id
-                    )
+                    const filteredList = data.filter((coin: Coin) => coin.symbol && coin.id)
                     const sortedList = filteredList.sort(this.sortList)
-                    SymbolMap.instance.coinList = sortedList
+                    CoinGeckoList.instance.coinList = sortedList
                     sortedList.forEach((coin: Coin) => {
-                        SymbolMap.instance.coinMap[coin.id] = coin
+                        CoinGeckoList.instance.coinMap[coin.id] = coin
                     })
                 })
         }
-        return SymbolMap.instance
+        return CoinGeckoList.instance
     }
 }

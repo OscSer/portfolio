@@ -1,7 +1,8 @@
-import { Transaction, TransactionType } from "@domain"
+import { Portfolio, PortfolioType, Transaction, TransactionType } from "@domain"
 import Utils from "../Utils"
 
 test("buildTableDataMap() | test1", () => {
+    const portfolio = { data: { name: "test", type: PortfolioType.Crypto } } as Portfolio
     const symbol = "test"
     const transactions: Transaction[] = [
         {
@@ -39,7 +40,7 @@ test("buildTableDataMap() | test1", () => {
         },
     ]
 
-    const result = Utils.buildTableDataMap(transactions)
+    const result = Utils.buildTableDataMap(transactions, portfolio)
     expect(result).toHaveProperty(symbol)
     expect(result[symbol].holdings).toBe(1)
     expect(result[symbol].cost).toBe(15)
