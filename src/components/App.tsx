@@ -28,7 +28,7 @@ function App(): JSX.Element {
         const timeout = setTimeout(() => {
             if (loading) location.reload()
         }, 10000)
-        return clearTimeout(timeout)
+        return () => clearTimeout(timeout)
     }, [loading])
 
     return (

@@ -1,9 +1,9 @@
 import "./Table.scss"
-import { TableData, Utils } from "@domain"
+import { TableData, Utils, Weightings } from "@domain"
 import { Column, useTable, useSortBy, TableState, CellProps } from "react-table"
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { PortfolioService, TransactionService } from "@services"
-import { useBalance, useLoading, usePortfolio, useTableData, useUser } from "@hooks"
+import { useLoading, usePortfolio, useTableData, useUser } from "@hooks"
 import { SymbolModal } from "./SymbolModal"
 import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
@@ -13,7 +13,6 @@ function Table(): JSX.Element {
     const {
         buildTableDataMap,
         buildTableData,
-        addWeightingProps,
         getColumns,
         defaultCustomColumns,
         getMarketDataService,
@@ -23,76 +22,58 @@ function Table(): JSX.Element {
     const [data, setData] = useTableData()
     const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
+    const weightings = useRef<Weightings>({})
     const [symbol, setSymbol] = useState("")
     const [id, setId] = useState("")
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
-    const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
     const { getWeightings, getCustomColumns } = PortfolioService
+    const tableDataMap = useRef({})
     const marketDataService = useMemo(
         () => getMarketDataService(portfolio),
         [getMarketDataService, portfolio]
     )
 
-    const getTransactions = useCallback(() => {
+    const getMarketData = useCallback(async () => {
+        const marketDataMap = await marketDataService.getMarketData(
+            Object.keys(tableDataMap.current)
+        )
+        const { tableData, balance } = buildTableData(
+            tableDataMap.current,
+            marketDataMap,
+            weightings.current
+        )
+        setData({ tableData, balance })
+    }, [buildTableData, marketDataService, setData])
+
+    const getTransactions = useCallback(async () => {
         setLoading(true)
-        const promises: Promise<boolean>[] = []
-        promises.push(
-            new Promise((resolve) => {
-                getAllTransactions(user.uid, portfolio).then((transactions) => {
-                    const tableDataMap = buildTableDataMap(transactions, portfolio)
-                    marketDataService
-                        .getMarketData(Object.keys(tableDataMap))
-                        .then((marketDataMap) => {
-                            const { tableData, balance } = buildTableData(
-                                tableDataMap,
-                                marketDataMap
-                            )
-                            getWeightings(user.uid, portfolio).then((weightings) => {
-                                setData(addWeightingProps(tableData, weightings, balance))
-                                setBalance(balance)
-                                resolve(true)
-                            })
-                        })
-                })
-            })
-        )
+        const transactions = await getAllTransactions(user.uid, portfolio)
+        tableDataMap.current = buildTableDataMap(transactions, portfolio)
+        await getMarketData()
+        setLoading(false)
+    }, [setLoading, getAllTransactions, user.uid, portfolio, buildTableDataMap, getMarketData])
 
-        promises.push(
-            new Promise((resolve) => {
-                getCustomColumns(user.uid, portfolio).then((_customColumns) => {
-                    if (_customColumns) {
-                        setCustomColumns(_customColumns)
-                    } else {
-                        setCustomColumns(defaultCustomColumns())
-                    }
-                    resolve(true)
-                })
-            })
-        )
+    const fetchCustomColumns = useCallback(async () => {
+        const _customColumns = await getCustomColumns(user.uid, portfolio)
+        if (_customColumns) {
+            setCustomColumns(_customColumns)
+        } else {
+            setCustomColumns(defaultCustomColumns())
+        }
+    }, [defaultCustomColumns, getCustomColumns, portfolio, user.uid])
 
-        Promise.all(promises).then(() => {
-            setLoading(false)
-        })
-    }, [
-        setLoading,
-        getAllTransactions,
-        user.uid,
-        portfolio,
-        buildTableDataMap,
-        marketDataService,
-        buildTableData,
-        getWeightings,
-        setData,
-        addWeightingProps,
-        setBalance,
-        getCustomColumns,
-        defaultCustomColumns,
-    ])
+    const fetchWeigtings = useCallback(async () => {
+        weightings.current = await getWeightings(user.uid, portfolio)
+    }, [getWeightings, portfolio, user.uid])
 
     useEffect(() => {
+        fetchCustomColumns()
+        fetchWeigtings()
         getTransactions()
-    }, [getTransactions, portfolio])
+        const interval = setInterval(() => getMarketData(), 30000)
+        return () => clearInterval(interval)
+    }, [fetchCustomColumns, fetchWeigtings, getMarketData, getTransactions, portfolio])
 
     const showSymbolModal = useCallback((_id: string, _symbol: string) => {
         setId(_id)
@@ -150,7 +131,7 @@ function Table(): JSX.Element {
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         {
             columns,
-            data,
+            data: data.tableData,
             initialState,
             disableMultiSort: true,
             disableSortRemove: true,
@@ -206,7 +187,7 @@ function Table(): JSX.Element {
                     })}
                 </tbody>
             </table>
-            {showModal ? (
+            {showModal && (
                 <SymbolModal
                     id={id}
                     symbol={symbol}
@@ -214,7 +195,7 @@ function Table(): JSX.Element {
                     setShow={setShowModal}
                     onHide={handleHide}
                 />
-            ) : null}
+            )}
         </>
     )
 }

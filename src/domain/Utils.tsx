@@ -92,7 +92,8 @@ const buildTableDataMap = (
 
 const buildTableData = (
     tableDataMap: Record<string, TableData>,
-    marketDataMap: Record<string, MarketData>
+    marketDataMap: Record<string, MarketData>,
+    weightings: Weightings
 ) => {
     const tableData: TableData[] = []
     let balance = 0
@@ -112,7 +113,7 @@ const buildTableData = (
         })
         balance += mktValue
     })
-    return { tableData, balance }
+    return { tableData: addWeightingProps(tableData, weightings, balance), balance }
 }
 
 const addWeightingProps = (tableData: TableData[], weightings: Weightings, balance: number) => {
@@ -350,7 +351,6 @@ export default {
     percentToString,
     buildTableDataMap,
     buildTableData,
-    addWeightingProps,
     getColumns,
     defaultCustomColumns,
     unitsToString,
