@@ -9,6 +9,7 @@ import { SymbolModal } from "./SymbolModal"
 import { Table } from "./Table"
 import { TransactionModal } from "./TransactionModal"
 import { WeightingsModal } from "./WeightingsModal"
+import { Balance } from "./Balance"
 
 export {
     App,
@@ -22,4 +23,5 @@ export {
     Table,
     TransactionModal,
     WeightingsModal,
+    Balance,
 }

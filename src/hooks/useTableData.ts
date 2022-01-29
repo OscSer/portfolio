@@ -1,5 +1,9 @@
 import { TableData } from "@domain"
 import { createGlobalState } from "react-use"
 
-const useTableData = createGlobalState<TableData[]>([])
+type data = {
+    tableData: TableData[]
+    balance: number
+}
+const useTableData = createGlobalState<data>({ tableData: [], balance: 0 })
 export { useTableData }

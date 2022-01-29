@@ -6,17 +6,15 @@ import { useCallback, useRef, useState } from "react"
 import { TransactionModal } from "./TransactionModal"
 import { Table } from "./Table"
 import { Utils } from "@domain"
-import { useBalance } from "@hooks"
 import { WeightingsModal } from "./WeightingsModal"
 import { ColumnsModal } from "./ColumnsModal"
+import { Balance } from "./Balance"
 
 function Content(): JSX.Element {
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const [showWeightingsModal, setShowWeightingsModal] = useState(false)
     const [showColumnsModal, setShowColumnsModal] = useState(false)
     const tableRef = useRef(Utils.getUniqueId())
-    const [balance] = useBalance()
-    const { priceToString } = Utils
 
     const handleHide = useCallback((shouldUpdate: boolean) => {
         if (shouldUpdate) {
@@ -27,50 +25,41 @@ function Content(): JSX.Element {
     return (
         <div className="content">
             <div className="content__info">
-                <div>
-                    <h1>Balance</h1>
-                    <div className="content__price">
-                        {priceToString(balance)}
-                    </div>
-                </div>
+                <Balance />
                 <div className="content__actions">
-                    <Button onClick={() => setShowTransactionModal(true)}>
-                        Add Transaction
-                    </Button>
+                    <Button onClick={() => setShowTransactionModal(true)}>Add Transaction</Button>
                     <DropdownButton title="Settings" variant="outline-primary">
-                        <Dropdown.Item
-                            onClick={() => setShowWeightingsModal(true)}>
+                        <Dropdown.Item onClick={() => setShowWeightingsModal(true)}>
                             Set Weightings
                         </Dropdown.Item>
-                        <Dropdown.Item
-                            onClick={() => setShowColumnsModal(true)}>
+                        <Dropdown.Item onClick={() => setShowColumnsModal(true)}>
                             Customize Columns
                         </Dropdown.Item>
                     </DropdownButton>
                 </div>
             </div>
             <Table key={tableRef.current} />
-            {showTransactionModal ? (
+            {showTransactionModal && (
                 <TransactionModal
                     show={showTransactionModal}
                     setShow={setShowTransactionModal}
                     onHide={handleHide}
                 />
-            ) : null}
-            {showWeightingsModal ? (
+            )}
+            {showWeightingsModal && (
                 <WeightingsModal
                     show={showWeightingsModal}
                     setShow={setShowWeightingsModal}
                     onHide={handleHide}
                 />
-            ) : null}
-            {showColumnsModal ? (
+            )}
+            {showColumnsModal && (
                 <ColumnsModal
                     show={showColumnsModal}
                     setShow={setShowColumnsModal}
                     onHide={handleHide}
                 />
-            ) : null}
+            )}
         </div>
     )
 }

@@ -17,6 +17,7 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     const [weightings, setWeightings] = useState<Weightings>({})
     const [total, setTotal] = useState(0)
     const [data] = useTableData()
+    const tableData = useRef(data.tableData)
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const { getWeightings, saveWeightings } = PortfolioService
@@ -25,18 +26,18 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
     useEffect(() => {
         getWeightings(user.uid, portfolio).then((_weightings) => {
             const newWeightings: Weightings = {}
-            data.forEach((coin) => {
+            tableData.current.forEach((coin) => {
                 const value = _weightings[coin.id]
                 if (value) newWeightings[coin.id] = value
             })
-            sortedData.current = data.sort((a: TableData, b: TableData) => {
+            sortedData.current = tableData.current.sort((a: TableData, b: TableData) => {
                 const valueA = newWeightings[a.id] || 0
                 const valueB = newWeightings[b.id] || 0
                 return valueB - valueA
             })
             setWeightings(newWeightings)
         })
-    }, [getWeightings, portfolio, user.uid, show, data])
+    }, [getWeightings, portfolio, user.uid, show])
 
     useEffect(() => {
         let count = 0
@@ -67,22 +68,17 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
                 <Form>
                     {sortedData.current.map((item) => (
                         <InputGroup key={item.id} className="custom">
-                            <InputGroup.Text>
-                                {item.symbol.toUpperCase()}
-                            </InputGroup.Text>
+                            <InputGroup.Text>{item.symbol.toUpperCase()}</InputGroup.Text>
                             <Form.Control
                                 type="number"
                                 onChange={(event) => {
                                     const value = event.target.value
-                                    weightings[item.id] =
-                                        value === "" ? NaN : Number(value)
+                                    weightings[item.id] = value === "" ? NaN : Number(value)
                                     setWeightings({ ...weightings })
                                 }}
                                 value={weightings[item.id] || ""}
                             />
-                            <InputGroup.Text style={{ width: "auto" }}>
-                                %
-                            </InputGroup.Text>
+                            <InputGroup.Text style={{ width: "auto" }}>%</InputGroup.Text>
                         </InputGroup>
                     ))}
                     <InputGroup className="custom">
@@ -93,18 +89,13 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
                             value={total}
                             style={{ color: total > 100 ? "red" : "" }}
                         />
-                        <InputGroup.Text style={{ width: "auto" }}>
-                            %
-                        </InputGroup.Text>
+                        <InputGroup.Text style={{ width: "auto" }}>%</InputGroup.Text>
                     </InputGroup>
                 </Form>
             </Modal.Body>
 
             <Modal.Footer>
-                <Button
-                    variant="primary"
-                    onClick={handleSave}
-                    disabled={total > 100}>
+                <Button variant="primary" onClick={handleSave} disabled={total > 100}>
                     Save
                 </Button>
             </Modal.Footer>
