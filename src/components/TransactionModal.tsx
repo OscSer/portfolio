@@ -4,23 +4,13 @@ import Button from "react-bootstrap/Button"
 import Form from "react-bootstrap/Form"
 import FormSelect from "react-bootstrap/FormSelect"
 import InputGroup from "react-bootstrap/InputGroup"
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react"
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import {
-    Coin,
-    SymbolMap,
-    Transaction,
-    TransactionData,
-    TransactionType,
-    Utils,
-} from "@domain"
+import { Coin, Transaction, TransactionData, TransactionType, Utils } from "@domain"
 import { DatePicker } from "./DatePicker"
-import { Typeahead } from "react-bootstrap-typeahead"
-import {
-    Option,
-    TypeaheadPropsAndState,
-} from "react-bootstrap-typeahead/types/types"
+import { AsyncTypeahead } from "react-bootstrap-typeahead"
+import { Option } from "react-bootstrap-typeahead/types/types"
 
 type Props = {
     show: boolean
@@ -29,74 +19,78 @@ type Props = {
     transaction?: Transaction
 }
 
-function TransactionModal({
-    show,
-    setShow,
-    transaction,
-    onHide,
-}: Props): JSX.Element {
-    const { saveTransaction } = TransactionService
-    const [user] = useUser()
-    const [portfolio] = usePortfolio()
-    const continueAdding = useRef(false)
-    const isNew = !transaction
-    const initialData = useRef({
+function TransactionModal({ show, setShow, transaction, onHide }: Props): JSX.Element {
+    const defaultData = useRef({
         type: TransactionType.Buy,
         units: NaN,
         price: NaN,
     } as TransactionData)
-    const [data, setData] = useState<TransactionData>(initialData.current)
-    const coinList = SymbolMap.getInstance().coinList
-    const coinMap = SymbolMap.getInstance().coinMap
+    const isNew = !transaction
+    const { saveTransaction } = TransactionService
+    const [user] = useUser()
+    const [portfolio] = usePortfolio()
+    const [continueAdding, setContinueAdding] = useState<"on" | "off">("off")
+    const [data, setData] = useState<TransactionData>(defaultData.current)
+    const [selectedCoin, setSelectedCoin] = useState<Coin>()
+    const [coinList, setCoinList] = useState<Coin[]>([])
     const shouldUpdate = useRef(false)
-    const { priceToString } = Utils
+    const { priceToString, getMarketDataService } = Utils
+    const marketDataService = useMemo(
+        () => getMarketDataService(portfolio),
+        [getMarketDataService, portfolio]
+    )
 
     useEffect(() => {
         if (isNew) {
-            setData({ ...initialData.current, date: new Date().getTime() })
+            setData({ ...defaultData.current, date: new Date().getTime() })
         } else {
+            marketDataService.getSymbol(transaction.data.id).then((coin) => {
+                setSelectedCoin(coin)
+            })
             setData(transaction.data)
         }
-    }, [initialData, isNew, transaction, show])
+    }, [defaultData, isNew, transaction, show, marketDataService])
 
-    const handleSave = () => {
+    const handleHide = useCallback(() => {
+        onHide(shouldUpdate.current)
+        setShow(false)
+    }, [onHide, setShow])
+
+    const handleSave = useCallback(() => {
         const ref = isNew ? undefined : transaction.ref
         const _transaction: Transaction = { ref, data }
         saveTransaction(user.uid, portfolio, _transaction)
         shouldUpdate.current = true
-        if (continueAdding.current) {
+        if (continueAdding === "on") {
             setData({
-                ...initialData.current,
+                ...defaultData.current,
                 date: new Date().getTime(),
             })
+            setSelectedCoin(undefined)
         } else {
             handleHide()
         }
-    }
-
-    const handleHide = () => {
-        onHide(shouldUpdate.current)
-        setShow(false)
-    }
+    }, [continueAdding, data, handleHide, isNew, portfolio, saveTransaction, transaction, user.uid])
 
     const labelKey = (option: Option) => {
         const coin = option as Coin
         return `${coin.symbol.toUpperCase()} (${coin.name})`
     }
 
-    const filterBy = (option: Option, state: TypeaheadPropsAndState) => {
-        const coin = option as Coin
-        if (state.selected.length) return true
-        return coin.symbol.toLowerCase().startsWith(state.text.toLowerCase())
-    }
-
     const handleSymbolChange = (selected: Option[]) => {
-        const coin = (selected[0] as Coin) || {}
+        const coin = selected[0] as Coin
+        setSelectedCoin(coin || undefined)
         setData((prev) => ({
             ...prev,
-            id: coin.id || "",
-            symbol: coin.symbol || "",
+            id: coin?.id || "",
+            symbol: coin?.symbol || "",
         }))
+    }
+
+    const handleSymbolSearch = (symbol: string) => {
+        marketDataService.searchSymbol(symbol).then((_coinList) => {
+            setCoinList(_coinList)
+        })
     }
 
     return (
@@ -130,11 +124,7 @@ function TransactionModal({
                             {Object.keys(TransactionType).map((key: string) => (
                                 <option
                                     key={key}
-                                    value={
-                                        TransactionType[
-                                            key as keyof typeof TransactionType
-                                        ]
-                                    }>
+                                    value={TransactionType[key as keyof typeof TransactionType]}>
                                     {key}
                                 </option>
                             ))}
@@ -143,12 +133,13 @@ function TransactionModal({
 
                     <InputGroup className="custom">
                         <InputGroup.Text>Symbol</InputGroup.Text>
-                        <Typeahead
+                        <AsyncTypeahead
                             id="symbol"
-                            selected={data.id ? [coinMap[data.id]] : []}
+                            selected={selectedCoin ? [selectedCoin] : []}
+                            isLoading={false}
+                            onSearch={handleSymbolSearch}
                             onChange={handleSymbolChange}
                             labelKey={labelKey}
-                            filterBy={filterBy}
                             options={coinList}
                             maxResults={5}
                         />
@@ -200,17 +191,13 @@ function TransactionModal({
             </Modal.Body>
 
             <Modal.Footer className="actions">
-                {isNew ? (
-                    <Form.Check
-                        type="switch"
-                        label="Continue adding"
-                        onChange={(e) =>
-                            (continueAdding.current = e.target.value === "on")
-                        }
-                    />
-                ) : (
-                    <div></div>
-                )}
+                <Form.Check
+                    type="switch"
+                    label="Continue adding"
+                    disabled={!isNew}
+                    value={continueAdding}
+                    onChange={(e) => setContinueAdding(e.target.value === "on" ? "off" : "on")}
+                />
                 <Button
                     variant="primary"
                     onClick={handleSave}

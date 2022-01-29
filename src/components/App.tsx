@@ -6,6 +6,7 @@ import { useLoading, usePortfolio, useUser } from "@hooks"
 import { Header } from "./Header"
 import { Content } from "./Content"
 import { Spinner } from "react-bootstrap"
+import { useEffect } from "react"
 
 function App(): JSX.Element {
     const [user, setUser] = useUser()
@@ -22,6 +23,13 @@ function App(): JSX.Element {
             }
         })
     })
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (loading) location.reload()
+        }, 10000)
+        return clearTimeout(timeout)
+    }, [loading])
 
     return (
         <>

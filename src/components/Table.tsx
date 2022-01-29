@@ -2,18 +2,8 @@ import "./Table.scss"
 import { TableData, Utils } from "@domain"
 import { Column, useTable, useSortBy, TableState, CellProps } from "react-table"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import {
-    CoinGeckoService,
-    PortfolioService,
-    TransactionService,
-} from "@services"
-import {
-    useBalance,
-    useLoading,
-    usePortfolio,
-    useTableData,
-    useUser,
-} from "@hooks"
+import { PortfolioService, TransactionService } from "@services"
+import { useBalance, useLoading, usePortfolio, useTableData, useUser } from "@hooks"
 import { SymbolModal } from "./SymbolModal"
 import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
@@ -26,48 +16,44 @@ function Table(): JSX.Element {
         addWeightingProps,
         getColumns,
         defaultCustomColumns,
+        getMarketDataService,
     } = Utils
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useTableData()
     const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
-    const [coinId, setCoinId] = useState("")
+    const [symbol, setSymbol] = useState("")
+    const [id, setId] = useState("")
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
     const [, setBalance] = useBalance()
     const { getAllTransactions } = TransactionService
-    const { getMarketData } = CoinGeckoService
     const { getWeightings, getCustomColumns } = PortfolioService
+    const marketDataService = useMemo(
+        () => getMarketDataService(portfolio),
+        [getMarketDataService, portfolio]
+    )
 
     const getTransactions = useCallback(() => {
         setLoading(true)
         const promises: Promise<boolean>[] = []
-
         promises.push(
             new Promise((resolve) => {
                 getAllTransactions(user.uid, portfolio).then((transactions) => {
-                    const tableDataMap = buildTableDataMap(transactions)
-                    getMarketData(Object.keys(tableDataMap)).then(
-                        (marketDataMap) => {
+                    const tableDataMap = buildTableDataMap(transactions, portfolio)
+                    marketDataService
+                        .getMarketData(Object.keys(tableDataMap))
+                        .then((marketDataMap) => {
                             const { tableData, balance } = buildTableData(
                                 tableDataMap,
                                 marketDataMap
                             )
-                            getWeightings(user.uid, portfolio).then(
-                                (weightings) => {
-                                    setData(
-                                        addWeightingProps(
-                                            tableData,
-                                            weightings,
-                                            balance
-                                        )
-                                    )
-                                    setBalance(balance)
-                                    resolve(true)
-                                }
-                            )
-                        }
-                    )
+                            getWeightings(user.uid, portfolio).then((weightings) => {
+                                setData(addWeightingProps(tableData, weightings, balance))
+                                setBalance(balance)
+                                resolve(true)
+                            })
+                        })
                 })
             })
         )
@@ -89,12 +75,12 @@ function Table(): JSX.Element {
             setLoading(false)
         })
     }, [
-        portfolio,
         setLoading,
         getAllTransactions,
         user.uid,
+        portfolio,
         buildTableDataMap,
-        getMarketData,
+        marketDataService,
         buildTableData,
         getWeightings,
         setData,
@@ -108,15 +94,17 @@ function Table(): JSX.Element {
         getTransactions()
     }, [getTransactions, portfolio])
 
-    const showSymbolModal = useCallback((_coinId: string) => {
-        setCoinId(_coinId)
+    const showSymbolModal = useCallback((_id: string, _symbol: string) => {
+        setId(_id)
+        setSymbol(_symbol)
         setShowModal(true)
     }, [])
 
     const handleHide = useCallback(
         (shouldUpdate: boolean) => {
             if (shouldUpdate) {
-                setCoinId("")
+                setId("")
+                setSymbol("")
                 getTransactions()
             }
         },
@@ -129,7 +117,7 @@ function Table(): JSX.Element {
                 Header: "Symbol",
                 Cell: ({ row }: CellProps<TableData>) => (
                     <div className="symbol">
-                        <img src={row.original.image} />
+                        {row.original.image && <img src={row.original.image} />}
                         {row.original.symbol.toUpperCase()}
                     </div>
                 ),
@@ -141,7 +129,7 @@ function Table(): JSX.Element {
                     <div className="actions">
                         <CompareArrowsIcon
                             className="icon"
-                            onClick={() => showSymbolModal(row.original.id)}
+                            onClick={() => showSymbolModal(row.original.id, row.original.symbol)}
                         />
                     </div>
                 ),
@@ -151,22 +139,15 @@ function Table(): JSX.Element {
     )
 
     const initialState: Partial<TableState<TableData>> = useMemo(() => {
-        const storedItem = window.localStorage.getItem("sortBy")
-        const lastSortBy = storedItem ? JSON.parse(storedItem) : undefined
+        const stored = window.localStorage.getItem("sortBy")
+        const lastSortBy = stored ? JSON.parse(stored) : undefined
         const defaultSortBy = { id: "mktValue", desc: true }
         return {
             sortBy: [lastSortBy || defaultSortBy],
         }
     }, [])
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-        state,
-    } = useTable(
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         {
             columns,
             data,
@@ -186,14 +167,10 @@ function Table(): JSX.Element {
             <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map((headerGroup, hgIndex) => (
-                        <tr
-                            {...headerGroup.getHeaderGroupProps()}
-                            key={hgIndex}>
+                        <tr {...headerGroup.getHeaderGroupProps()} key={hgIndex}>
                             {headerGroup.headers.map((column, hIndex) => (
                                 <th
-                                    {...column.getHeaderProps(
-                                        column.getSortByToggleProps()
-                                    )}
+                                    {...column.getHeaderProps(column.getSortByToggleProps())}
                                     key={hIndex}>
                                     <span>
                                         {column.isSorted ? (
@@ -219,9 +196,7 @@ function Table(): JSX.Element {
                             <tr {...row.getRowProps()} key={rIndex}>
                                 {row.cells.map((cell, cIndex) => {
                                     return (
-                                        <td
-                                            {...cell.getCellProps()}
-                                            key={cIndex}>
+                                        <td {...cell.getCellProps()} key={cIndex}>
                                             {cell.render("Cell")}
                                         </td>
                                     )
@@ -233,7 +208,8 @@ function Table(): JSX.Element {
             </table>
             {showModal ? (
                 <SymbolModal
-                    coinId={coinId}
+                    id={id}
+                    symbol={symbol}
                     show={showModal}
                     setShow={setShowModal}
                     onHide={handleHide}

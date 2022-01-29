@@ -1,6 +1,6 @@
 export enum PortfolioType {
-    StockMarket = "STOCKS",
-    Cryptocurrencies = "CRYPTO",
+    StockMarket = "STOCK_MARKET",
+    Crypto = "CRYPTO",
 }
 
 export type PortfolioData = {

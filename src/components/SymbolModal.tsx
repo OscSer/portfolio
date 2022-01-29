@@ -1,16 +1,9 @@
 import "./SymbolModal.scss"
 import Modal from "react-bootstrap/Modal"
-import {
-    Dispatch,
-    SetStateAction,
-    useCallback,
-    useEffect,
-    useRef,
-    useState,
-} from "react"
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { SymbolMap, Transaction, Utils } from "@domain"
+import { Transaction, Utils } from "@domain"
 import { ListGroup } from "react-bootstrap"
 import EditIcon from "@material-ui/icons/Edit"
 import DeleteIcon from "@material-ui/icons/Delete"
@@ -22,10 +15,11 @@ type Props = {
     show: boolean
     setShow: Dispatch<SetStateAction<boolean>>
     onHide: (shouldUpdate: boolean) => void
-    coinId: string
+    symbol: string
+    id: string
 }
 
-function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
+function SymbolModal({ show, setShow, symbol, id, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [transaction, setTransaction] = useState<Transaction>()
@@ -34,7 +28,6 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     const shouldUpdate = useRef(false)
     const { getTransactionsById, deleteTransaction } = TransactionService
     const { priceToString, unitsToString } = Utils
-    const coinMap = SymbolMap.getInstance().coinMap
 
     const handleHide = useCallback(() => {
         setTransactions([])
@@ -43,23 +36,19 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     }, [onHide, setShow])
 
     const getTransactions = useCallback(() => {
-        getTransactionsById(user.uid, portfolio, coinId).then(
-            (_transactions) => {
-                if (_transactions.length) {
-                    const orderedTransactions = sortBy(_transactions, [
-                        "data.date",
-                    ]).reverse()
-                    setTransactions(orderedTransactions)
-                } else {
-                    handleHide()
-                }
+        getTransactionsById(user.uid, portfolio, id).then((_transactions) => {
+            if (_transactions.length) {
+                const orderedTransactions = sortBy(_transactions, ["data.date"]).reverse()
+                setTransactions(orderedTransactions)
+            } else {
+                handleHide()
             }
-        )
-    }, [getTransactionsById, handleHide, portfolio, coinId, user.uid])
+        })
+    }, [getTransactionsById, handleHide, portfolio, id, user.uid])
 
     useEffect(() => {
         getTransactions()
-    }, [getTransactions, coinId])
+    }, [getTransactions, symbol])
 
     const handleEditTransaction = (_transaction: Transaction) => {
         setTransaction(_transaction)
@@ -82,7 +71,7 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
     return (
         <Modal show={show} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{coinId && coinMap[coinId].name}</Modal.Title>
+                <Modal.Title>{symbol ? symbol.toUpperCase() : ""}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
@@ -91,17 +80,10 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
                         <ListGroup.Item key={_transaction.ref}>
                             <div className="group">
                                 <div className="date">
-                                    {new Date(
-                                        _transaction.data.date
-                                    ).toLocaleString()}
+                                    {new Date(_transaction.data.date).toLocaleString()}
                                 </div>
                                 <div className="type">
-                                    <ProfitLoss
-                                        value={
-                                            _transaction.data.type === "BUY"
-                                                ? 1
-                                                : -1
-                                        }>
+                                    <ProfitLoss value={_transaction.data.type === "BUY" ? 1 : -1}>
                                         {_transaction.data.type}
                                     </ProfitLoss>
                                 </div>
@@ -109,30 +91,21 @@ function SymbolModal({ show, setShow, coinId, onHide }: Props): JSX.Element {
                                     {unitsToString(_transaction.data.units)}
                                 </div>
                                 <div className="price">
-                                    {`Price: ${priceToString(
-                                        _transaction.data.price
-                                    )}`}
+                                    {`Price: ${priceToString(_transaction.data.price)}`}
                                 </div>
                                 <div className="total">
                                     {`Total: ${priceToString(
-                                        _transaction.data.units *
-                                            _transaction.data.price
+                                        _transaction.data.units * _transaction.data.price
                                     )}`}
                                 </div>
                                 <div className="actions">
                                     <EditIcon
                                         className="icon"
-                                        onClick={() =>
-                                            handleEditTransaction(_transaction)
-                                        }
+                                        onClick={() => handleEditTransaction(_transaction)}
                                     />
                                     <DeleteIcon
                                         className="icon"
-                                        onClick={() =>
-                                            handleDeleteTransaction(
-                                                _transaction
-                                            )
-                                        }
+                                        onClick={() => handleDeleteTransaction(_transaction)}
                                     />
                                 </div>
                             </div>

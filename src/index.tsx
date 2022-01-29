@@ -4,10 +4,10 @@ import "react-bootstrap-typeahead/css/Typeahead.css"
 import { StrictMode } from "react"
 import { render } from "react-dom"
 import { App } from "@components"
-import { SymbolMap } from "@domain"
+import { CoinGeckoList } from "@domain"
 
 /* init singleton */
-SymbolMap.getInstance()
+CoinGeckoList.getInstance()
 
 render(
     <StrictMode>
