@@ -126,7 +126,8 @@ function Table(): JSX.Element {
         return {
             sortBy: [lastSortBy || defaultSortBy],
         }
-    }, [])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [data]) /* data for interval */
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         {
