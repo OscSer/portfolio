@@ -73,7 +73,11 @@ function WeightingsModal({ show, setShow, onHide }: Props): JSX.Element {
                                 type="number"
                                 onChange={(event) => {
                                     const value = event.target.value
-                                    weightings[item.id] = value === "" ? NaN : Number(value)
+                                    if (value === "") {
+                                        delete weightings[item.id]
+                                    } else {
+                                        weightings[item.id] = Number(value)
+                                    }
                                     setWeightings({ ...weightings })
                                 }}
                                 value={weightings[item.id] || ""}
