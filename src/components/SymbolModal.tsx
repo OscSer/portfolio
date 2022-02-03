@@ -1,9 +1,9 @@
 import "./SymbolModal.scss"
 import Modal from "react-bootstrap/Modal"
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { TransactionService } from "@services"
 import { usePortfolio, useUser } from "@hooks"
-import { Transaction, Utils } from "@domain"
+import { Coin, Transaction, Utils } from "@domain"
 import { ListGroup } from "react-bootstrap"
 import EditIcon from "@material-ui/icons/Edit"
 import DeleteIcon from "@material-ui/icons/Delete"
@@ -12,14 +12,11 @@ import { ProfitLoss } from "./ProfitLoss"
 import { sortBy } from "lodash"
 
 type Props = {
-    show: boolean
-    setShow: Dispatch<SetStateAction<boolean>>
     onHide: (shouldUpdate: boolean) => void
-    symbol: string
-    id: string
+    symbolId: string
 }
 
-function SymbolModal({ show, setShow, symbol, id, onHide }: Props): JSX.Element {
+function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [transaction, setTransaction] = useState<Transaction>()
@@ -27,16 +24,19 @@ function SymbolModal({ show, setShow, symbol, id, onHide }: Props): JSX.Element 
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const shouldUpdate = useRef(false)
     const { getTransactionsById, deleteTransaction } = TransactionService
-    const { priceToString, unitsToString } = Utils
+    const { priceToString, unitsToString, getMarketDataService } = Utils
+    const marketDataService = useMemo(
+        () => getMarketDataService(portfolio),
+        [getMarketDataService, portfolio]
+    )
+    const [coin, setCoin] = useState<Coin | undefined>()
 
     const handleHide = useCallback(() => {
-        setTransactions([])
-        setShow(false)
         onHide(shouldUpdate.current)
-    }, [onHide, setShow])
+    }, [onHide])
 
     const getTransactions = useCallback(() => {
-        getTransactionsById(user.uid, portfolio, id).then((_transactions) => {
+        getTransactionsById(user.uid, portfolio, symbolId).then((_transactions) => {
             if (_transactions.length) {
                 const orderedTransactions = sortBy(_transactions, ["data.date"]).reverse()
                 setTransactions(orderedTransactions)
@@ -44,11 +44,12 @@ function SymbolModal({ show, setShow, symbol, id, onHide }: Props): JSX.Element 
                 handleHide()
             }
         })
-    }, [getTransactionsById, handleHide, portfolio, id, user.uid])
+    }, [getTransactionsById, handleHide, portfolio, symbolId, user.uid])
 
     useEffect(() => {
+        marketDataService.getSymbol(symbolId).then((_coin) => setCoin(_coin))
         getTransactions()
-    }, [getTransactions, symbol])
+    }, [getTransactions, marketDataService, symbolId])
 
     const handleEditTransaction = (_transaction: Transaction) => {
         setTransaction(_transaction)
@@ -69,9 +70,9 @@ function SymbolModal({ show, setShow, symbol, id, onHide }: Props): JSX.Element 
     }
 
     return (
-        <Modal show={show} onHide={handleHide} className="symbol-modal">
+        <Modal show={true} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{symbol ? symbol.toUpperCase() : ""}</Modal.Title>
+                <Modal.Title>{coin && `${coin.symbol.toUpperCase()} (${coin.name})`}</Modal.Title>
             </Modal.Header>
 
             <Modal.Body>
