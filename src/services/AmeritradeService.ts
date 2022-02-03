@@ -87,7 +87,7 @@ export class AmeritradeService implements MarketDataService {
                                 } else {
                                     const _data = data[id]
                                     const marketData = new MarketData()
-                                    marketData.price = _data.lastPrice || 0
+                                    marketData.price = _data.mark || 0
                                     marketDataMap[id] = marketData
                                 }
                                 resolve(true)

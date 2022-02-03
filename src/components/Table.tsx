@@ -23,8 +23,7 @@ function Table(): JSX.Element {
     const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
     const weightings = useRef<Weightings>({})
-    const [symbol, setSymbol] = useState("")
-    const [id, setId] = useState("")
+    const [symbolId, setSymbolId] = useState("")
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
     const { getAllTransactions } = TransactionService
     const { getWeightings, getCustomColumns } = PortfolioService
@@ -71,23 +70,19 @@ function Table(): JSX.Element {
         fetchCustomColumns()
         fetchWeigtings()
         getTransactions()
-        const interval = setInterval(() => getMarketData(), 30000)
+        const interval = setInterval(() => getMarketData(), 45000)
         return () => clearInterval(interval)
     }, [fetchCustomColumns, fetchWeigtings, getMarketData, getTransactions, portfolio])
 
-    const showSymbolModal = useCallback((_id: string, _symbol: string) => {
-        setId(_id)
-        setSymbol(_symbol)
+    const showSymbolModal = useCallback((_id: string) => {
+        setSymbolId(_id)
         setShowModal(true)
     }, [])
 
-    const handleHide = useCallback(
+    const handleHideSymbolModal = useCallback(
         (shouldUpdate: boolean) => {
-            if (shouldUpdate) {
-                setId("")
-                setSymbol("")
-                getTransactions()
-            }
+            shouldUpdate && getTransactions()
+            setShowModal(false)
         },
         [getTransactions]
     )
@@ -97,10 +92,7 @@ function Table(): JSX.Element {
             {
                 Header: "Symbol",
                 Cell: ({ row }: CellProps<TableData>) => (
-                    <div className="symbol">
-                        {row.original.image && <img src={row.original.image} />}
-                        {row.original.symbol.toUpperCase()}
-                    </div>
+                    <div className="symbol">{row.original.symbol.toUpperCase()}</div>
                 ),
             },
             ...getColumns(customColumns),
@@ -110,7 +102,7 @@ function Table(): JSX.Element {
                     <div className="actions">
                         <CompareArrowsIcon
                             className="icon"
-                            onClick={() => showSymbolModal(row.original.id, row.original.symbol)}
+                            onClick={() => showSymbolModal(row.original.id)}
                         />
                     </div>
                 ),
@@ -188,15 +180,7 @@ function Table(): JSX.Element {
                     })}
                 </tbody>
             </table>
-            {showModal && (
-                <SymbolModal
-                    id={id}
-                    symbol={symbol}
-                    show={showModal}
-                    setShow={setShowModal}
-                    onHide={handleHide}
-                />
-            )}
+            {showModal && <SymbolModal symbolId={symbolId} onHide={handleHideSymbolModal} />}
         </>
     )
 }
