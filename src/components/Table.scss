@@ -13,10 +13,6 @@ table {
         text-align: right;
     }
 
-    thead > tr > th:nth-child(1) {
-        text-align: left;
-    }
-
     tbody {
         tr {
             height: 45px;
@@ -24,6 +20,20 @@ table {
                 background-color: $hover-background;
             }
         }
+    }
+
+    thead > tr > th:nth-child(1) {
+        text-align: left;
+    }
+
+    thead > tr > th:nth-child(1),
+    tbody > tr > td:nth-child(1) {
+        padding-left: 0;
+    }
+
+    thead > tr > th:nth-last-child(1),
+    tbody > tr > td:nth-last-child(1) {
+        padding-right: 0;
     }
 
     .symbol {
@@ -37,7 +47,7 @@ table {
         }
     }
 
-    .header-icon {
+    .sort-icon {
         color: $sort-icon-color;
     }
 }
