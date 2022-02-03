@@ -97,6 +97,8 @@ const buildTableData = (
 ) => {
     const tableData: TableData[] = []
     let balance = 0
+    let totalProfit = 0
+    let totalCost = 0
     Object.keys(tableDataMap).forEach((id) => {
         const coin = tableDataMap[id]
         const market = marketDataMap[id]
@@ -112,8 +114,16 @@ const buildTableData = (
             costAvg: coin.cost / coin.holdings,
         })
         balance += mktValue
+        totalCost += coin.cost
+        totalProfit += profit
     })
-    return { tableData: addWeightingProps(tableData, weightings, balance), balance }
+    const totalProfitPercent = (totalCost && 100 * (totalProfit / totalCost)) || 0
+    return {
+        tableData: addWeightingProps(tableData, weightings, balance),
+        balance,
+        profit: totalProfit,
+        profitPercent: totalProfitPercent,
+    }
 }
 
 const addWeightingProps = (tableData: TableData[], weightings: Weightings, balance: number) => {

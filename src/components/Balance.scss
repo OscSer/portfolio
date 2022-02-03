@@ -1,6 +1,8 @@
 .balance {
+    display: flex;
+    flex-direction: column;
+
     &__value {
-        font-size: 25px;
-        height: 33px;
+        font-size: 32px;
     }
 }

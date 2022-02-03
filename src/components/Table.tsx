@@ -38,12 +38,12 @@ function Table(): JSX.Element {
         const marketDataMap = await marketDataService.getMarketData(
             Object.keys(tableDataMap.current)
         )
-        const { tableData, balance } = buildTableData(
+        const { tableData, balance, profit, profitPercent } = buildTableData(
             tableDataMap.current,
             marketDataMap,
             weightings.current
         )
-        setData({ tableData, balance })
+        setData({ tableData, balance, profit, profitPercent })
     }, [buildTableData, marketDataService, setData])
 
     const getTransactions = useCallback(async () => {
@@ -157,9 +157,9 @@ function Table(): JSX.Element {
                                     <span>
                                         {column.isSorted ? (
                                             column.isSortedDesc ? (
-                                                <ArrowDownIcon className="header-icon" />
+                                                <ArrowDownIcon className="sort-icon" />
                                             ) : (
-                                                <ArrowUpIcon className="header-icon" />
+                                                <ArrowUpIcon className="sort-icon" />
                                             )
                                         ) : (
                                             ""
