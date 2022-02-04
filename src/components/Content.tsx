@@ -30,9 +30,7 @@ function Content(): JSX.Element {
                 <Balance />
                 <div className="content__actions">
                     <Button onClick={() => setShowTransactionModal(true)}>Transaction</Button>
-                    <DropdownButton
-                        title={width < 1000 ? "" : "Settings"}
-                        variant="outline-primary">
+                    <DropdownButton title={width < 600 ? "" : "Settings"} variant="outline-primary">
                         <Dropdown.Item onClick={() => setShowWeightingsModal(true)}>
                             Set Weightings
                         </Dropdown.Item>

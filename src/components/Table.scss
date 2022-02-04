@@ -1,5 +1,5 @@
 $border-color: #dee2e6;
-$hover-background: rgb(248, 250, 253);
+$hover-background: #f5f5f5;
 $sort-icon-color: #297eff;
 
 .table-container {
@@ -27,18 +27,13 @@ $sort-icon-color: #297eff;
 
         thead > tr > th:nth-child(1),
         tbody > tr > td:nth-child(1) {
-            padding-left: 0;
             text-align: left;
-            position: relative;
             position: -webkit-sticky;
             position: sticky;
             left: 0;
-            background: white;
-        }
-
-        thead > tr > th:nth-last-child(1),
-        tbody > tr > td:nth-last-child(1) {
-            padding-right: 0;
+            @media screen and (max-width: 1000px) {
+                background: $hover-background;
+            }
         }
 
         .sort-icon {
