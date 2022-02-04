@@ -25,14 +25,15 @@ $sort-icon-color: #297eff;
             }
         }
 
-        thead > tr > th:nth-child(1) {
-            text-align: left;
-        }
-
         thead > tr > th:nth-child(1),
         tbody > tr > td:nth-child(1) {
             padding-left: 0;
             text-align: left;
+            position: relative;
+            position: -webkit-sticky;
+            position: sticky;
+            left: 0;
+            background: white;
         }
 
         thead > tr > th:nth-last-child(1),
