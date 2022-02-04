@@ -38,7 +38,7 @@ function App(): JSX.Element {
                     className="app"
                     data-testid="app"
                     style={{
-                        display: loading ? "none" : "unset",
+                        display: loading ? "none" : "",
                     }}>
                     <div>
                         <Header />

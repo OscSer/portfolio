@@ -3,6 +3,9 @@
     flex-direction: column;
 
     &__value {
-        font-size: 32px;
+        font-size: 2rem;
+        @media screen and (max-width: 1000px) {
+            font-size: 1.5rem;
+        }
     }
 }

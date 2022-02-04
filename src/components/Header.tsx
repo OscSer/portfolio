@@ -8,9 +8,8 @@ import { ChangeEvent, useCallback, useRef, useState } from "react"
 import { find } from "lodash"
 import { Portfolio } from "@domain"
 import { useEffectOnce } from "react-use"
-import EditIcon from "@material-ui/icons/Edit"
-import AddIcon from "@material-ui/icons/Add"
 import ExitToAppIcon from "@material-ui/icons/ExitToApp"
+import { Dropdown, DropdownButton } from "react-bootstrap"
 
 function Header(): JSX.Element {
     const [user] = useUser()
@@ -31,9 +30,7 @@ function Header(): JSX.Element {
                 const _options: JSX.Element[] = []
                 _portfolios.forEach((_portfolio) => {
                     const option = (
-                        <option
-                            key={_portfolio.ref}
-                            value={_portfolio.ref || ""}>
+                        <option key={_portfolio.ref} value={_portfolio.ref || ""}>
                             {_portfolio.data.name}
                         </option>
                     )
@@ -82,16 +79,13 @@ function Header(): JSX.Element {
     return (
         <div className="header">
             <div className="header__portfolio">
-                <FormSelect
-                    onChange={handlePortfolioChange}
-                    value={portfolio?.ref || ""}>
+                <FormSelect onChange={handlePortfolioChange} value={portfolio?.ref || ""}>
                     {options}
                 </FormSelect>
-                <EditIcon className="icon" onClick={handlePortfolioEdit} />
-                <AddIcon
-                    className="icon icon-add"
-                    onClick={handlePortfolioAdd}
-                />
+                <DropdownButton title="" variant="outline-secondary">
+                    <Dropdown.Item onClick={handlePortfolioEdit}>Edit</Dropdown.Item>
+                    <Dropdown.Item onClick={handlePortfolioAdd}>Create</Dropdown.Item>
+                </DropdownButton>
             </div>
             <div className="header__user icon" onClick={handleSignOut}>
                 <div className="header__username">{user.displayName}</div>

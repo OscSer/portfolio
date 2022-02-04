@@ -9,12 +9,14 @@ import { Utils } from "@domain"
 import { WeightingsModal } from "./WeightingsModal"
 import { ColumnsModal } from "./ColumnsModal"
 import { Balance } from "./Balance"
+import { useWindowSize } from "react-use"
 
 function Content(): JSX.Element {
     const [showTransactionModal, setShowTransactionModal] = useState(false)
     const [showWeightingsModal, setShowWeightingsModal] = useState(false)
     const [showColumnsModal, setShowColumnsModal] = useState(false)
     const tableRef = useRef(Utils.getUniqueId())
+    const { width } = useWindowSize()
 
     const handleHide = useCallback((shouldUpdate: boolean) => {
         if (shouldUpdate) {
@@ -27,8 +29,10 @@ function Content(): JSX.Element {
             <div className="content__info">
                 <Balance />
                 <div className="content__actions">
-                    <Button onClick={() => setShowTransactionModal(true)}>Add Transaction</Button>
-                    <DropdownButton title="Settings" variant="outline-primary">
+                    <Button onClick={() => setShowTransactionModal(true)}>Transaction</Button>
+                    <DropdownButton
+                        title={width < 1000 ? "" : "Settings"}
+                        variant="outline-primary">
                         <Dropdown.Item onClick={() => setShowWeightingsModal(true)}>
                             Set Weightings
                         </Dropdown.Item>
