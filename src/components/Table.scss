@@ -2,52 +2,46 @@ $border-color: #dee2e6;
 $hover-background: rgb(248, 250, 253);
 $sort-icon-color: #297eff;
 
-table {
-    border-spacing: 0;
+.table-container {
+    overflow: auto;
 
-    th,
-    td {
-        margin: 0;
-        padding: 4px 12px;
-        border-bottom: 1px solid $border-color;
-        text-align: right;
-    }
+    table {
+        border-spacing: 0;
 
-    tbody {
-        tr {
-            height: 45px;
-            &:hover {
-                background-color: $hover-background;
+        th,
+        td {
+            margin: 0;
+            padding: 4px 12px;
+            border-bottom: 1px solid $border-color;
+            text-align: right;
+        }
+
+        tbody {
+            tr {
+                height: 45px;
+                &:hover {
+                    background-color: $hover-background;
+                }
             }
         }
-    }
 
-    thead > tr > th:nth-child(1) {
-        text-align: left;
-    }
-
-    thead > tr > th:nth-child(1),
-    tbody > tr > td:nth-child(1) {
-        padding-left: 0;
-    }
-
-    thead > tr > th:nth-last-child(1),
-    tbody > tr > td:nth-last-child(1) {
-        padding-right: 0;
-    }
-
-    .symbol {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        gap: 10px;
-        img {
-            width: 20px;
+        thead > tr > th:nth-child(1) {
+            text-align: left;
         }
-    }
 
-    .sort-icon {
-        color: $sort-icon-color;
+        thead > tr > th:nth-child(1),
+        tbody > tr > td:nth-child(1) {
+            padding-left: 0;
+            text-align: left;
+        }
+
+        thead > tr > th:nth-last-child(1),
+        tbody > tr > td:nth-last-child(1) {
+            padding-right: 0;
+        }
+
+        .sort-icon {
+            color: $sort-icon-color;
+        }
     }
 }

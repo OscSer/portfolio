@@ -8,6 +8,7 @@ import { SymbolModal } from "./SymbolModal"
 import ArrowDownIcon from "@material-ui/icons/ArrowDropDown"
 import ArrowUpIcon from "@material-ui/icons/ArrowDropUp"
 import CompareArrowsIcon from "@material-ui/icons/CompareArrows"
+import { useWindowSize } from "react-use"
 
 function Table(): JSX.Element {
     const {
@@ -32,6 +33,7 @@ function Table(): JSX.Element {
         () => getMarketDataService(portfolio),
         [getMarketDataService, portfolio]
     )
+    const { width } = useWindowSize()
 
     const getMarketData = useCallback(async () => {
         const marketDataMap = await marketDataService.getMarketData(
@@ -91,15 +93,13 @@ function Table(): JSX.Element {
         () => [
             {
                 Header: "Symbol",
-                Cell: ({ row }: CellProps<TableData>) => (
-                    <div className="symbol">{row.original.symbol.toUpperCase()}</div>
-                ),
+                Cell: ({ row }: CellProps<TableData>) => row.original.symbol.toUpperCase(),
             },
             ...getColumns(customColumns),
             {
                 Header: "Actions",
                 Cell: ({ row }: CellProps<TableData>) => (
-                    <div className="actions">
+                    <div>
                         <CompareArrowsIcon
                             className="icon"
                             onClick={() => showSymbolModal(row.original.id)}
@@ -137,7 +137,7 @@ function Table(): JSX.Element {
     }, [state.sortBy])
 
     return (
-        <>
+        <div className="table-container" style={width < 1000 ? { width: width - 40 } : {}}>
             <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map((headerGroup, hgIndex) => (
@@ -181,7 +181,7 @@ function Table(): JSX.Element {
                 </tbody>
             </table>
             {showModal && <SymbolModal symbolId={symbolId} onHide={handleHideSymbolModal} />}
-        </>
+        </div>
     )
 }
 

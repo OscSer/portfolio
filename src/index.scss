@@ -15,12 +15,6 @@ body {
     cursor: pointer;
 }
 
-.icon-add {
-    &.MuiSvgIcon-root {
-        font-size: 29px;
-    }
-}
-
 .input-group {
     padding-top: 7px;
     input {
@@ -33,5 +27,8 @@ body {
     }
     .react-datepicker-wrapper {
         width: 83%;
+        @media screen and (max-width: 1000px) {
+            width: 76%;
+        }
     }
 }
