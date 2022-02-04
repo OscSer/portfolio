@@ -18,6 +18,7 @@ function Table(): JSX.Element {
         defaultCustomColumns,
         getMarketDataService,
     } = Utils
+    const { width } = useWindowSize()
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [data, setData] = useTableData()
@@ -33,7 +34,6 @@ function Table(): JSX.Element {
         () => getMarketDataService(portfolio),
         [getMarketDataService, portfolio]
     )
-    const { width } = useWindowSize()
 
     const getMarketData = useCallback(async () => {
         const marketDataMap = await marketDataService.getMarketData(
