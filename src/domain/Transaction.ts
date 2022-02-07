@@ -1,6 +1,6 @@
 export enum TransactionType {
-    Buy = "BUY",
-    Sell = "SELL",
+    BUY = "BUY",
+    SELL = "SELL",
 }
 
 export type TransactionData = {

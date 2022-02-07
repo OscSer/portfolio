@@ -21,7 +21,7 @@ type Props = {
 
 function TransactionModal({ show, setShow, transaction, onHide }: Props): JSX.Element {
     const defaultData = useRef({
-        type: TransactionType.Buy,
+        type: TransactionType.BUY,
         units: NaN,
         price: NaN,
     } as TransactionData)
