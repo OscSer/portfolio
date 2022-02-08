@@ -92,12 +92,16 @@ function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
                                     {unitsToString(_transaction.data.units)}
                                 </div>
                                 <div className="price">
-                                    {`Price: ${priceToString(_transaction.data.price)}`}
+                                    {_transaction.data.price
+                                        ? `Price: ${priceToString(_transaction.data.price)}`
+                                        : "-"}
                                 </div>
                                 <div className="total">
-                                    {`Total: ${priceToString(
-                                        _transaction.data.units * _transaction.data.price
-                                    )}`}
+                                    {_transaction.data.price
+                                        ? `Total: ${priceToString(
+                                              _transaction.data.units * _transaction.data.price
+                                          )}`
+                                        : "-"}
                                 </div>
                                 <div className="actions">
                                     <EditIcon
