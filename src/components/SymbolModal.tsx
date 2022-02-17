@@ -13,10 +13,11 @@ import { sortBy } from "lodash"
 
 type Props = {
     onHide: (shouldUpdate: boolean) => void
-    symbolId: string
+    id: string
+    holdings: number
 }
 
-function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
+function SymbolModal({ id, holdings, onHide }: Props): JSX.Element {
     const [user] = useUser()
     const [portfolio] = usePortfolio()
     const [transaction, setTransaction] = useState<Transaction>()
@@ -36,7 +37,7 @@ function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
     }, [onHide])
 
     const getTransactions = useCallback(() => {
-        getTransactionsById(user.uid, portfolio, symbolId).then((_transactions) => {
+        getTransactionsById(user.uid, portfolio, id).then((_transactions) => {
             if (_transactions.length) {
                 const orderedTransactions = sortBy(_transactions, ["data.date"]).reverse()
                 setTransactions(orderedTransactions)
@@ -44,12 +45,12 @@ function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
                 handleHide()
             }
         })
-    }, [getTransactionsById, handleHide, portfolio, symbolId, user.uid])
+    }, [getTransactionsById, handleHide, portfolio, id, user.uid])
 
     useEffect(() => {
-        marketDataService.getSymbol(symbolId).then((_coin) => setCoin(_coin))
+        marketDataService.getSymbol(id).then((_coin) => setCoin(_coin))
         getTransactions()
-    }, [getTransactions, marketDataService, symbolId])
+    }, [getTransactions, marketDataService, id])
 
     const handleEditTransaction = (_transaction: Transaction) => {
         setTransaction(_transaction)
@@ -72,7 +73,9 @@ function SymbolModal({ symbolId, onHide }: Props): JSX.Element {
     return (
         <Modal show={true} onHide={handleHide} className="symbol-modal">
             <Modal.Header closeButton>
-                <Modal.Title>{coin && `${coin.symbol.toUpperCase()} (${coin.name})`}</Modal.Title>
+                <Modal.Title>
+                    {coin && `${coin.symbol.toUpperCase()} (${Number(holdings).toString()})`}
+                </Modal.Title>
             </Modal.Header>
 
             <Modal.Body>

@@ -25,7 +25,7 @@ function Table(): JSX.Element {
     const [, setLoading] = useLoading()
     const [showModal, setShowModal] = useState(false)
     const weightings = useRef<Weightings>({})
-    const [symbolId, setSymbolId] = useState("")
+    const [symbolParams, setSymbolParams] = useState({ id: "", holdings: 0 })
     const [customColumns, setCustomColumns] = useState(defaultCustomColumns())
     const { getAllTransactions } = TransactionService
     const { getWeightings, getCustomColumns } = PortfolioService
@@ -76,8 +76,8 @@ function Table(): JSX.Element {
         return () => clearInterval(interval)
     }, [fetchCustomColumns, fetchWeigtings, getMarketData, getTransactions, portfolio])
 
-    const showSymbolModal = useCallback((_id: string) => {
-        setSymbolId(_id)
+    const showSymbolModal = useCallback((id: string, holdings: number) => {
+        setSymbolParams({ id, holdings })
         setShowModal(true)
     }, [])
 
@@ -102,7 +102,7 @@ function Table(): JSX.Element {
                     <div>
                         <CompareArrowsIcon
                             className="icon"
-                            onClick={() => showSymbolModal(row.original.id)}
+                            onClick={() => showSymbolModal(row.original.id, row.original.holdings)}
                         />
                     </div>
                 ),
@@ -180,7 +180,7 @@ function Table(): JSX.Element {
                     })}
                 </tbody>
             </table>
-            {showModal && <SymbolModal symbolId={symbolId} onHide={handleHideSymbolModal} />}
+            {showModal && <SymbolModal {...symbolParams} onHide={handleHideSymbolModal} />}
         </div>
     )
 }
