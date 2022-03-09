@@ -120,7 +120,7 @@ function TransactionModal({ show, setShow, transaction, onHide }: Props): JSX.El
                                     type: event.target.value as TransactionType,
                                 }))
                             }
-                            defaultValue={data.type}>
+                            value={data.type}>
                             {Object.keys(TransactionType).map((key: string) => (
                                 <option
                                     key={key}

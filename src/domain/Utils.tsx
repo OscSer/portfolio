@@ -88,7 +88,7 @@ const buildTableDataMap = (
     })
 
     Object.keys(dataMap).forEach((key) => {
-        if (dataMap[key].holdings === 0) delete dataMap[key]
+        if (unitsToString(dataMap[key].holdings) === "0") delete dataMap[key]
     })
 
     return dataMap
