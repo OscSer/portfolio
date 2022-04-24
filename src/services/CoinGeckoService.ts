@@ -46,22 +46,10 @@ export class CoinGeckoService implements MarketDataService {
                         )
                             .then((response) => response.json())
                             .then((json) => {
-                                if (!json.data) {
-                                    marketDataMap[id] = {} as MarketData
-                                } else {
+                                marketDataMap[id] = new MarketData()
+                                if (json.data) {
                                     const marketData = json.data[1]
-                                    marketDataMap[id] = {
-                                        price: Number(marketData.nav_per_token) || 0,
-                                        ath: 0,
-                                        athChange: 0,
-                                        priceChange24h: 0,
-                                        priceChange7d: 0,
-                                        priceChange14d: 0,
-                                        priceChange30d: 0,
-                                        priceChange60d: 0,
-                                        priceChange200d: 0,
-                                        priceChange1y: 0,
-                                    }
+                                    marketDataMap[id].price = Number(marketData.nav_per_token) || 0
                                 }
                                 resolve(true)
                             })
