@@ -17,11 +17,12 @@ const getUniqueId = (length = 20): string => {
     return result
 }
 
-const priceToString = (price: number | undefined): string => {
+const priceToString = (price: number | undefined, minimumFractionDigits = 2): string => {
     if (price === undefined) return ""
     return price.toLocaleString("en-EN", {
         style: "currency",
         currency: "USD",
+        minimumFractionDigits,
     })
 }
 
@@ -54,37 +55,30 @@ const buildTableDataMap = (
     const dataMap: Record<string, TableData> = {}
     Object.keys(idMap).forEach((id) => {
         const _transactions = idMap[id]
-        const buyTransactions: Transaction[] = []
-        let unitsSoldCounter = 0
+        let purchases = 0
+        let sells = 0
+        let holdings = 0
         _transactions.forEach((transaction) => {
+            const cost = transaction.data.units * transaction.data.price
             if (transaction.data.type === "SELL") {
-                unitsSoldCounter += transaction.data.units
+                sells += cost
+                holdings -= transaction.data.units
             } else if (transaction.data.type === "BUY") {
-                buyTransactions.push(transaction)
+                purchases += cost
+                holdings += transaction.data.units
             }
         })
-        buyTransactions.forEach((transaction) => {
-            const data = transaction.data
-            const _key = portfolio.data.type === PortfolioType.Crypto ? data.id : data.symbol
-            if (!dataMap[_key]) {
-                dataMap[_key] = {
-                    id: data.id,
-                    symbol: data.symbol,
-                    holdings: 0,
-                    cost: 0,
-                } as TableData
-            }
 
-            if (unitsSoldCounter === 0 || unitsSoldCounter < data.units) {
-                const units = data.units - unitsSoldCounter
-                const cost = units * data.price
-                dataMap[_key].holdings += units
-                dataMap[_key].cost += cost
-                unitsSoldCounter = 0
-            } else {
-                unitsSoldCounter -= data.units
-            }
-        })
+        const data = _transactions[0].data
+        const _key = portfolio.data.type === PortfolioType.Crypto ? data.id : data.symbol
+        if (!dataMap[_key]) {
+            dataMap[_key] = {
+                id: data.id,
+                symbol: data.symbol,
+                cost: purchases - sells,
+                holdings,
+            } as TableData
+        }
     })
 
     Object.keys(dataMap).forEach((key) => {
@@ -106,16 +100,19 @@ const buildTableData = (
     Object.keys(tableDataMap).forEach((id) => {
         const coin = tableDataMap[id]
         const market = marketDataMap[id]
-        const mktValue = coin.holdings * market.price
-        const profit = mktValue - coin.cost || 0
-        const profitPercent = (coin.cost && 100 * (profit / coin.cost)) || 0
+        const _holdings = Number(coin.holdings.toFixed(8))
+        const holdings = _holdings === 0 ? 0 : _holdings
+        const mktValue = holdings * market.price
+        const profit = mktValue - coin.cost
+        const profitPercent = coin.cost && 100 * (profit / coin.cost)
+        const costAvg = holdings !== 0 ? coin.cost / holdings : 0
         tableData.push({
             ...coin,
             ...market,
             mktValue,
             profit,
             profitPercent,
-            costAvg: coin.cost / coin.holdings,
+            costAvg,
         })
         balance += mktValue
         totalCost += coin.cost
