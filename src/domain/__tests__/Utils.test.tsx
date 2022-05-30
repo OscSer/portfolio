@@ -12,7 +12,7 @@ test("buildTableDataMap() | test1", () => {
                 id: symbol,
                 symbol: symbol,
                 type: TransactionType.BUY,
-                units: 1,
+                units: 2,
                 price: 5,
             },
         },
@@ -35,14 +35,16 @@ test("buildTableDataMap() | test1", () => {
                 symbol: symbol,
                 type: TransactionType.SELL,
                 units: 1,
-                price: 10,
+                price: 20,
             },
         },
     ]
 
     const result = Utils.buildTableDataMap(transactions, portfolio)
     expect(result).toHaveProperty(symbol)
-    expect(result[symbol].holdings).toBe(1)
-    expect(result[symbol].cost).toBe(15)
-    expect(result[symbol].cost / result[symbol].holdings).toBe(15)
+
+    const { holdings, cost } = result[symbol]
+    expect(holdings).toBe(2)
+    expect(cost).toBe(5)
+    expect(cost / holdings).toBe(2.5)
 })
