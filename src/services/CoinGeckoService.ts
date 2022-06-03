@@ -1,5 +1,6 @@
 import { Coin, MarketData, CoinGeckoList } from "@domain"
 import { MarketDataService } from "./MarketDataService"
+import moment from "moment"
 
 export class CoinGeckoService implements MarketDataService {
     private api = "https://api.coingecko.com"
@@ -37,20 +38,13 @@ export class CoinGeckoService implements MarketDataService {
         const marketDataMap: Record<string, MarketData> = {}
         ids.forEach((id) => {
             if (id === "crypto20") {
-                const start = new Date(new Date().setUTCHours(0)).toISOString()
-                const end = new Date(new Date().setUTCHours(23)).toISOString()
                 promises.push(
                     new Promise((resolve) => {
-                        fetch(
-                            `https://api.invictuscapital.com/v2/funds/crypto20/assets-history?start=${start}&end=${end}`
-                        )
+                        fetch(`https://api-gateway-go.invictuscapital.com/funds/crypto20/nav`)
                             .then((response) => response.json())
                             .then((json) => {
                                 marketDataMap[id] = new MarketData()
-                                if (json.data) {
-                                    const marketData = json.data[1]
-                                    marketDataMap[id].price = Number(marketData.nav_per_token) || 0
-                                }
+                                marketDataMap[id].price = Number(json.nav_per_token) || 0
                                 resolve(true)
                             })
                     })
