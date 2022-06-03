@@ -96,6 +96,7 @@
         "jest": "^27.4.7",
         "lint-staged": "^12.2.2",
         "live-server": "^1.2.1",
+        "moment": "^2.29.3",
         "npm-check-updates": "^12.1.0",
         "prettier": "^2.5.1",
         "react": "^17.0.2",
